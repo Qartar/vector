@@ -46,21 +46,33 @@ float test(std::vector<float> const& values) {
             { *v++, *v++, *v++, 1.0f }, *v++,
         };
 
+        Capsule<T> capsule {
+            { *v++, *v++, *v++, 1.0f },
+            { *v++, *v++, *v++, 1.0f },
+            *v++,
+        };
+
         Hit<T> hit;
 
         if (hitSphere<T>(ray, sphere, hit)) {
+            noalias += hit.t;
+        }
+
+        if (hitCapsule<T>(ray, capsule, hit)) {
             noalias += hit.t;
         }
     }
     accum = Accumulate(accum, start, Timestamp());
     auto microseconds = Microseconds(accum);
 
-    printf_s("%12.4f : %12.4f us\n", noalias, microseconds);
+    printf_s("%12.4f : %12.4f \xc2\xb5s\n", noalias, microseconds);
 
     return noalias;
 }
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+
     testComparison();
     testAlgebraic();
     testLength();
@@ -69,7 +81,7 @@ int main() {
 
     printf_s("Generating test data...\n");
     constexpr const size_t kIter = (1 << 20);
-    std::vector<float> values(kIter * 10);
+    std::vector<float> values(kIter * 17);
 
     std::uniform_real_distribution<float> r(0.0f, 16.0f);
     std::mt19937_64 gen;
