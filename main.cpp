@@ -35,6 +35,13 @@ int main() {
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
     testVectorAdd(values, kIter);
+    testVectorSub(values, kIter);
+    testScalarMul(values, kIter);
+    testScalarDiv(values, kIter);
+    testVectorLength(values, kIter);
+    testVectorLengthFast(values, kIter);
+    testVectorNormalize(values, kIter);
+    testVectorNormalizeFast(values, kIter);
     testVectorDot(values, kIter);
     testVectorCross(values, kIter);
     testHitSphere(values, kIter);

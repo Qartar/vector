@@ -40,6 +40,211 @@ struct vectorAddT {
 };
 
 template<typename T>
+struct vectorSubT {
+    static constexpr const char* name = "vectorSub";
+    static constexpr const size_t size = 8;
+
+    struct Args {
+        T a;
+        T b;
+    };
+
+    vectorSubT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii].a = { *v++, *v++, *v++, *v++ };
+            _input[ii].b = { *v++, *v++, *v++, *v++ };
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        T* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->a - in->b;
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<T> _output;
+};
+
+template<typename T>
+struct scalarMulT {
+    static constexpr const char* name = "scalarMul";
+    static constexpr const size_t size = 5;
+
+    struct Args {
+        T v;
+        float s;
+    };
+
+    scalarMulT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {{*v++, *v++, *v++, *v++}, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        T* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->v * in->s;
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<T> _output;
+};
+
+template<typename T>
+struct scalarDivT {
+    static constexpr const char* name = "scalarDiv";
+    static constexpr const size_t size = 5;
+
+    struct Args {
+        T v;
+        float s;
+    };
+
+    scalarDivT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {{*v++, *v++, *v++, *v++}, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        T* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->v / in->s;
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<T> _output;
+};
+
+template<typename T>
+struct vectorLengthT {
+    static constexpr const char* name = "vectorLength";
+    static constexpr const size_t size = 4;
+
+    vectorLengthT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {*v++, *v++, *v++, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        T const* in = _input.data();
+        float* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->Length();
+        }
+    }
+
+    std::vector<T> _input;
+    std::vector<float> _output;
+};
+
+template<typename T>
+struct vectorLengthFastT {
+    static constexpr const char* name = "vectorLengthFast";
+    static constexpr const size_t size = 4;
+
+    vectorLengthFastT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {*v++, *v++, *v++, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        T const* in = _input.data();
+        float* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->LengthFast();
+        }
+    }
+
+    std::vector<T> _input;
+    std::vector<float> _output;
+};
+
+template<typename T>
+struct vectorNormalizeT {
+    static constexpr const char* name = "vectorNormalize";
+    static constexpr const size_t size = 4;
+
+    vectorNormalizeT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {*v++, *v++, *v++, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        T const* in = _input.data();
+        T* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->Normalize();
+        }
+    }
+
+    std::vector<T> _input;
+    std::vector<T> _output;
+};
+
+template<typename T>
+struct vectorNormalizeFastT {
+    static constexpr const char* name = "vectorNormalizeFast";
+    static constexpr const size_t size = 4;
+
+    vectorNormalizeFastT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {*v++, *v++, *v++, *v++};
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        T const* in = _input.data();
+        T* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->NormalizeFast();
+        }
+    }
+
+    std::vector<T> _input;
+    std::vector<T> _output;
+};
+
+template<typename T>
 struct vectorDotT {
     static constexpr const char* name = "vectorDot";
     static constexpr const size_t size = 8;
@@ -236,6 +441,34 @@ void testPerformance(std::vector<float> const& data, size_t iterations) {
 
 void testVectorAdd(std::vector<float> const& data, size_t iterations) {
     return testPerformance<vectorAddT>(data, iterations);
+}
+
+void testVectorSub(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorSubT>(data, iterations);
+}
+
+void testScalarMul(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<scalarMulT>(data, iterations);
+}
+
+void testScalarDiv(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<scalarDivT>(data, iterations);
+}
+
+void testVectorLength(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorLengthT>(data, iterations);
+}
+
+void testVectorLengthFast(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorLengthFastT>(data, iterations);
+}
+
+void testVectorNormalize(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorNormalizeT>(data, iterations);
+}
+
+void testVectorNormalizeFast(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorNormalizeFastT>(data, iterations);
 }
 
 void testVectorDot(std::vector<float> const& data, size_t iterations) {

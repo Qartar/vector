@@ -37,6 +37,13 @@ private:
 };
 
 void testVectorAdd(std::vector<float> const& data, size_t iterations);
+void testVectorSub(std::vector<float> const& data, size_t iterations);
+void testScalarMul(std::vector<float> const& data, size_t iterations);
+void testScalarDiv(std::vector<float> const& data, size_t iterations);
+void testVectorLength(std::vector<float> const& data, size_t iterations);
+void testVectorLengthFast(std::vector<float> const& data, size_t iterations);
+void testVectorNormalize(std::vector<float> const& data, size_t iterations);
+void testVectorNormalizeFast(std::vector<float> const& data, size_t iterations);
 void testVectorDot(std::vector<float> const& data, size_t iterations);
 void testVectorCross(std::vector<float> const& data, size_t iterations);
 void testHitSphere(std::vector<float> const& data, size_t iterations);
