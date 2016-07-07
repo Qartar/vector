@@ -36,5 +36,8 @@ private:
     LARGE_INTEGER _accum;
 };
 
+void testVectorAdd(std::vector<float> const& data, size_t iterations);
+void testVectorDot(std::vector<float> const& data, size_t iterations);
+void testVectorCross(std::vector<float> const& data, size_t iterations);
 void testHitSphere(std::vector<float> const& data, size_t iterations);
 void testHitCapsule(std::vector<float> const& data, size_t iterations);

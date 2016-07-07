@@ -31,6 +31,12 @@ int main() {
     testCrossProduct();
 
     printf_s("Testing performance...\n");
+    SetProcessAffinityMask(GetCurrentProcess(), 1);
+    SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+    testVectorAdd(values, kIter);
+    testVectorDot(values, kIter);
+    testVectorCross(values, kIter);
     testHitSphere(values, kIter);
     testHitCapsule(values, kIter);
 
