@@ -1,4 +1,4 @@
-#include "Test.h"
+#include "Conformance.h"
 
 #include "Default.h"
 #include "Aligned.h"
@@ -39,6 +39,7 @@ struct testAlgebraicT {
         T a(1.0f, 2.0f, 3.0f, 4.0f);
         T b(2.0f, 3.0f, 4.0f, 5.0f);
         float c = 0.5f;
+        float d = 3.0f;
 
         if (a + b != T(3.0f, 5.0f, 7.0f, 9.0f)) {
             return false;
@@ -53,6 +54,14 @@ struct testAlgebraicT {
         }
 
         if (a / c != T(2.0f, 4.0f, 6.0f, 8.0f)) {
+            return false;
+        }
+
+        if (c * (a + b) != c * a + c * b) {
+            return false;
+        }
+
+        if ((c + d) * a != c * a + d * a) {
             return false;
         }
 
@@ -75,16 +84,14 @@ struct testLengthT {
             return false;
         }
 
-        T c = a.Normalize();
-        float csqr = c.LengthSqr();
-        if (1.0f - 1e-6f > csqr || csqr > 1.0f + 1e-6f) {
+        float asqr = a.Normalize().LengthSqr();
+        if (1.0f - 1e-6f > asqr || asqr > 1.0f + 1e-6f) {
             return false;
         }
 
-        T d = b.NormalizeFast();
-        float dsqr = d.LengthSqr();
+        float bsqr = b.NormalizeFast().LengthSqr();
         // Maximum relative error of rsqrtps is less than 1.5*2^-12
-        if (1.0f - 3e-4f > dsqr || dsqr > 1.0f + 3e-4f) {
+        if (1.0f - 3e-4f > bsqr || bsqr > 1.0f + 3e-4f) {
             return false;
         }
 

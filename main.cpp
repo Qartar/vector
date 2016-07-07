@@ -4,7 +4,7 @@
 
 #include "Intersect.h"
 
-#include "Test.h"
+#include "Conformance.h"
 
 #include <cstdint>
 #include <algorithm>

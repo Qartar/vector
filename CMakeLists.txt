@@ -5,8 +5,8 @@ project(vector)
 add_executable(vector
     main.cpp
 
-    Test.cpp
-    Test.h
+    Conformance.cpp
+    Conformance.h
 
     Intersect.h
 
