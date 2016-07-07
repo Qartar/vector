@@ -7,6 +7,8 @@ add_executable(vector
 
     Conformance.cpp
     Conformance.h
+    Performance.cpp
+    Performance.h
 
     Intersect.h
 

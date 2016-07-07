@@ -5,79 +5,12 @@
 #include "Intersect.h"
 
 #include "Conformance.h"
+#include "Performance.h"
 
-#include <cstdint>
-#include <algorithm>
 #include <random>
-#define NOMINMAX
-#include <Windows.h>
-
-int64_t Timestamp() {
-    LARGE_INTEGER li;
-    QueryPerformanceCounter(&li);
-    return li.QuadPart;
-}
-
-int64_t Accumulate(int64_t accum, int64_t start, int64_t end) {
-    return accum + std::max<int64_t>(0i64, end - start);
-}
-
-double Microseconds(int64_t accum) {
-    LARGE_INTEGER li;
-    QueryPerformanceFrequency(&li);
-    return 1.0e6 * double(accum) / double(li.QuadPart);
-}
-
-template<class T, size_t kIter>
-float test(std::vector<float> const& values) {
-    float noalias = 0.0f;
-    auto accum = 0i64;
-
-    float const* v = values.data();
-
-    auto start = Timestamp();
-    for (size_t ii = 0; ii < kIter; ++ii) {
-        Ray<T> ray = {
-            { *v++, *v++, *v++, 1.0f },
-            { *v++, *v++, *v++, 1.0f },
-        };
-
-        Sphere<T> sphere = {
-            { *v++, *v++, *v++, 1.0f }, *v++,
-        };
-
-        Capsule<T> capsule {
-            { *v++, *v++, *v++, 1.0f },
-            { *v++, *v++, *v++, 1.0f },
-            *v++,
-        };
-
-        Hit<T> hit;
-
-        if (hitSphere<T>(ray, sphere, hit)) {
-            noalias += hit.t;
-        }
-
-        if (hitCapsule<T>(ray, capsule, hit)) {
-            noalias += hit.t;
-        }
-    }
-    accum = Accumulate(accum, start, Timestamp());
-    auto microseconds = Microseconds(accum);
-
-    printf_s("%12.4f : %12.4f \xc2\xb5s\n", noalias, microseconds);
-
-    return noalias;
-}
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
-
-    testComparison();
-    testAlgebraic();
-    testLength();
-    testDotProduct();
-    testCrossProduct();
 
     printf_s("Generating test data...\n");
     constexpr const size_t kIter = (1 << 20);
@@ -90,12 +23,16 @@ int main() {
         values[ii] = r(gen);
     }
 
-    int result = 0;
-    for (size_t ii = 0; ii < 4; ++ii) {
-        printf_s("\n");
-        result += (int )test<default::Vector, kIter>(values);
-        result += (int )test<aligned::Vector, kIter>(values);
-        result += (int )test<intrinsic::Vector, kIter>(values);
-    }
-    return result;
+    printf_s("Testing conformance...\n");
+    testComparison();
+    testAlgebraic();
+    testLength();
+    testDotProduct();
+    testCrossProduct();
+
+    printf_s("Testing performance...\n");
+    testHitSphere(values, kIter);
+    testHitCapsule(values, kIter);
+
+    return 0;
 }
