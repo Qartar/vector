@@ -15,43 +15,43 @@ public:
         : _value(_mm_set_ps1(X)) {}
 
     bool operator==(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmpeq_ps(_value, a._value)) == 0xf;
+        return _mm_comieq_ss(_value, a._value) == 1;
     }
 
     bool operator!=(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmpneq_ps(_value, a._value)) == 0xf;
+        return _mm_comineq_ss(_value, a._value) == 1;
     }
 
     bool operator<(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmplt_ps(_value, a._value)) == 0xf;
+        return _mm_comilt_ss(_value, a._value) == 1;
     }
 
     bool operator>(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmpgt_ps(_value, a._value)) == 0xf;
+        return _mm_comigt_ss(_value, a._value) == 1;
     }
 
     bool operator<=(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmple_ps(_value, a._value)) == 0xf;
+        return _mm_comile_ss(_value, a._value) == 1;
     }
 
     bool operator>=(Scalar const& a) const {
-        return _mm_movemask_ps(_mm_cmpge_ps(_value, a._value)) == 0xf;
+        return _mm_comige_ss(_value, a._value) == 1;
     }
 
     friend bool operator<(float a, Scalar const& b) {
-        return _mm_movemask_ps(_mm_cmplt_ss(_mm_set_ss(a), b._value)) & 0x1;
+        return _mm_comilt_ss(_mm_set_ss(a), b._value) == 1;
     }
 
     friend bool operator>(float a, Scalar const& b) {
-        return _mm_movemask_ps(_mm_cmpgt_ss(_mm_set_ss(a), b._value)) & 0x1;
+        return _mm_comigt_ss(_mm_set_ss(a), b._value) == 1;
     }
 
     friend bool operator<=(float a, Scalar const& b) {
-        return _mm_movemask_ps(_mm_cmple_ss(_mm_set_ss(a), b._value)) & 0x1;
+        return _mm_comile_ss(_mm_set_ss(a), b._value) == 1;
     }
 
     friend bool operator>=(float a, Scalar const& b) {
-        return _mm_movemask_ps(_mm_cmpge_ss(_mm_set_ss(a), b._value)) & 0x1;
+        return _mm_comige_ss(_mm_set_ss(a), b._value) == 1;
     }
 
     Scalar operator-() const {
@@ -91,7 +91,7 @@ public:
     }
 
     friend Scalar abs(Scalar const& a) {
-        return _mm_and_ps(a._value, _mm_castsi128_ps(_mm_set_epi32(0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff)));
+        return _mm_andnot_ps(a._value, _mm_set_ps1(-0.f));
     }
 
     friend Scalar sqrt(Scalar const& a) {
