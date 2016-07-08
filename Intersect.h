@@ -1,53 +1,53 @@
 #pragma once
 
-template<typename T>
+template<typename V, typename S>
 struct Ray {
-    T start;
-    T end;
+    V start;
+    V end;
 };
 
-template<typename T>
+template<typename V, typename S>
 struct Sphere {
-    T origin;
-    float radius;
+    V origin;
+    S radius;
 };
 
-template<typename T>
+template<typename V, typename S>
 struct Capsule {
-    T start;
-    T end;
-    float radius;
+    V start;
+    V end;
+    S radius;
 };
 
-template<typename T>
+template<typename V, typename S>
 struct Hit {
-    float t;
-    T point;
-    T normal;
+    S t;
+    V point;
+    V normal;
 };
 
-template<typename T>
-bool hitSphere(Ray<T> const& ray,
-               Sphere<T> const& sphere,
-               Hit<T>& hit)
+template<typename V, typename S>
+bool hitSphere(Ray<V, S> const& ray,
+               Sphere<V, S> const& sphere,
+               Hit<V, S>& hit)
 {
-    T rayVec = ray.end - ray.start;
-    T sphereVec = ray.start - sphere.origin;
+    V rayVec = ray.end - ray.start;
+    V sphereVec = ray.start - sphere.origin;
 
-    float A = rayVec * rayVec;
-    float B = 2.0f * rayVec * sphereVec;
-    float C = sphereVec * sphereVec - sphere.radius * sphere.radius;
+    S A = rayVec * rayVec;
+    S B = 2.0f * rayVec * sphereVec;
+    S C = sphereVec * sphereVec - sphere.radius * sphere.radius;
 
-    float Dsqr = B * B - 4.0f * A * C;
+    S Dsqr = B * B - 4.0f * A * C;
 
     if (Dsqr < 0.0f) {
         return false;
     }
 
-    float D = std::sqrt(Dsqr);
+    S D = sqrt(Dsqr);
 
-    float t0 = 0.5f * (-B - D) / A;
-    float t1 = 0.5f * (-B + D) / A;
+    S t0 = 0.5f * (-B - D) / A;
+    S t1 = 0.5f * (-B + D) / A;
 
     if (t0 >= 0.0f && t0 <= 1.0f) {
         hit.t = t0;
@@ -58,42 +58,42 @@ bool hitSphere(Ray<T> const& ray,
     }
 
     hit.point = ray.start + rayVec * t0;
-    hit.normal = t0 >= 0.0f ? T(hit.point - sphere.origin).Normalize()
-                            : T(sphere.origin - hit.point).Normalize();
+    hit.normal = t0 >= 0.0f ? V(hit.point - sphere.origin).Normalize()
+                            : V(sphere.origin - hit.point).Normalize();
     return true;
 }
 
-template<typename T>
-bool hitCapsule(Ray<T> const& ray,
-                Capsule<T> const& capsule,
-                Hit<T>& hit)
+template<typename V, typename S>
+bool hitCapsule(Ray<V, S> const& ray,
+                Capsule<V, S> const& capsule,
+                Hit<V, S>& hit)
 {
-    T rayVec = ray.end - ray.start;
-    T capsuleVec = capsule.end - capsule.start;
+    V rayVec = ray.end - ray.start;
+    V capsuleVec = capsule.end - capsule.start;
 
-    T splitPlane = rayVec % capsuleVec;
+    V splitPlane = rayVec % capsuleVec;
 
-    float splitNum = splitPlane * (ray.start - capsule.start);
-    float splitDen = splitPlane * splitPlane;
+    S splitNum = splitPlane * (ray.start - capsule.start);
+    S splitDen = splitPlane * splitPlane;
 
-    float Dsqr = splitNum * splitNum / splitDen;
-    float Rsqr = capsule.radius * capsule.radius;
+    S Dsqr = splitNum * splitNum / splitDen;
+    S Rsqr = capsule.radius * capsule.radius;
     if (Dsqr > Rsqr) {
         return false;
     }
 
-    T hitPlane = splitPlane % capsuleVec;
+    V hitPlane = splitPlane % capsuleVec;
 
-    float hitNum = hitPlane * (capsule.start - ray.start);
-    float hitDen = hitPlane * rayVec;
+    S hitNum = hitPlane * (capsule.start - ray.start);
+    S hitDen = hitPlane * rayVec;
 
-    if (std::abs(hitDen) == 0.0f) {
+    if (abs(hitDen) == 0.0f) {
         return false;
     }
 
-    float H = std::sqrt(Rsqr - Dsqr);
-    float t = (hitNum - H) / hitDen;
-    T hitPoint = ray.start + rayVec * t;
+    S H = sqrt(Rsqr - Dsqr);
+    S t = (hitNum - H) / hitDen;
+    V hitPoint = ray.start + rayVec * t;
 
     if (capsuleVec * (hitPoint - capsule.end) > 0.0f) {
         return hitSphere(ray, {capsule.end, capsule.radius}, hit);
@@ -103,7 +103,7 @@ bool hitCapsule(Ray<T> const& ray,
         return false;
     }
 
-    T projected = capsuleVec * hitPoint * capsuleVec / (capsuleVec * capsuleVec);
+    V projected = capsuleVec * hitPoint * capsuleVec / (capsuleVec * capsuleVec);
 
     hit.t = t;
     hit.point = hitPoint;

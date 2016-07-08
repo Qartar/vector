@@ -7,13 +7,13 @@
 #include <cstdio>
 #include <cmath>
 
-template<typename T>
+template<typename V, typename S>
 struct testComparisonT {
     static constexpr const char* name = "testComparison";
 
     bool operator()() const {
-        T a(1.0f, 2.0f, 3.0f, 4.0f);
-        T b(2.0f, 3.0f, 4.0f, 5.0f);
+        V a(1.0f, 2.0f, 3.0f, 4.0f);
+        V b(2.0f, 3.0f, 4.0f, 5.0f);
 
         if (a != a) {
             return false;
@@ -31,29 +31,29 @@ struct testComparisonT {
     }
 };
 
-template<typename T>
+template<typename V, typename S>
 struct testAlgebraicT {
     static constexpr const char* name = "testAlgebraic";
 
     bool operator()() const {
-        T a(1.0f, 2.0f, 3.0f, 4.0f);
-        T b(2.0f, 3.0f, 4.0f, 5.0f);
-        float c = 0.5f;
-        float d = 3.0f;
+        V a(1.0f, 2.0f, 3.0f, 4.0f);
+        V b(2.0f, 3.0f, 4.0f, 5.0f);
+        S c = 0.5f;
+        S d = 3.0f;
 
-        if (a + b != T(3.0f, 5.0f, 7.0f, 9.0f)) {
+        if (a + b != V(3.0f, 5.0f, 7.0f, 9.0f)) {
             return false;
         }
 
-        if (a - b != T(-1.0f, -1.0f, -1.0f, -1.0f)) {
+        if (a - b != V(-1.0f, -1.0f, -1.0f, -1.0f)) {
             return false;
         }
 
-        if (a * c != T(0.5f, 1.0f, 1.5f, 2.0f)) {
+        if (a * c != V(0.5f, 1.0f, 1.5f, 2.0f)) {
             return false;
         }
 
-        if (a / c != T(2.0f, 4.0f, 6.0f, 8.0f)) {
+        if (a / c != V(2.0f, 4.0f, 6.0f, 8.0f)) {
             return false;
         }
 
@@ -69,13 +69,13 @@ struct testAlgebraicT {
     }
 };
 
-template<typename T>
+template<typename V, typename S>
 struct testLengthT {
     static constexpr const char* name = "testLength";
 
     bool operator()() const {
-        T a(1.0f, 2.0f, 3.0f, 4.0f);
-        T b(2.0f, 3.0f, 4.0f, 5.0f);
+        V a(1.0f, 2.0f, 3.0f, 4.0f);
+        V b(2.0f, 3.0f, 4.0f, 5.0f);
 
         if (a.LengthSqr() != (1.0f + 4.0f + 9.0f + 16.0f)) {
             return false;
@@ -84,12 +84,12 @@ struct testLengthT {
             return false;
         }
 
-        float asqr = a.Normalize().LengthSqr();
+        S asqr = a.Normalize().LengthSqr();
         if (1.0f - 1e-6f > asqr || asqr > 1.0f + 1e-6f) {
             return false;
         }
 
-        float bsqr = b.NormalizeFast().LengthSqr();
+        S bsqr = b.NormalizeFast().LengthSqr();
         // Maximum relative error of rsqrtps is less than 1.5*2^-12
         if (1.0f - 3e-4f > bsqr || bsqr > 1.0f + 3e-4f) {
             return false;
@@ -99,13 +99,13 @@ struct testLengthT {
     }
 };
 
-template<typename T>
+template<typename V, typename S>
 struct testDotProductT {
     static constexpr const char* name = "testDotProduct";
 
     bool operator()() const {
-        T a(1.0f, 2.0f, 3.0f, 4.0f);
-        T b(2.0f, 3.0f, 4.0f, 5.0f);
+        V a(1.0f, 2.0f, 3.0f, 4.0f);
+        V b(2.0f, 3.0f, 4.0f, 5.0f);
 
         if (a * b != (2.0f + 6.0f + 12.0f + 20.0f)) {
             return false;
@@ -114,38 +114,38 @@ struct testDotProductT {
     }
 };
 
-template<typename T>
+template<typename V, typename S>
 struct testCrossProductT {
     static constexpr const char* name = "testCrossProduct";
 
     bool operator()() const {
-        T a(2.0f, 0.0f, 0.0f, 0.0f);
-        T b(0.0f, 3.0f, 0.0f, 0.0f);
+        V a(2.0f, 0.0f, 0.0f, 0.0f);
+        V b(0.0f, 3.0f, 0.0f, 0.0f);
 
-        if (a % b != T(0.0f, 0.0f, 6.0f, 0.0f)) {
+        if (a % b != V(0.0f, 0.0f, 6.0f, 0.0f)) {
             return false;
         }
 
-        if (a % b + b % a != T(0.0f, 0.0f, 0.0f, 0.0f)) {
+        if (a % b + b % a != V(0.0f, 0.0f, 0.0f, 0.0f)) {
             return false;
         }
         return true;
     }
 };
 
-template<template<typename> typename Func>
+template<template<typename, typename> typename Func>
 bool testFunc() {
     bool mask = true;
-    if (!Func<default::Vector>()()) {
-        printf_s("%s<default> failed!\n", Func<default::Vector>::name);
+    if (!Func<default::Vector, default::Scalar>()()) {
+        printf_s("%s<default> failed!\n", Func<default::Vector, default::Scalar>::name);
         mask = false;
     }
-    if (!Func<aligned::Vector>()()) {
-        printf_s("%s<aligned> failed!\n", Func<aligned::Vector>::name);
+    if (!Func<aligned::Vector, aligned::Scalar>()()) {
+        printf_s("%s<aligned> failed!\n", Func<aligned::Vector, aligned::Scalar>::name);
         mask = false;
     }
-    if (!Func<intrinsic::Vector>()()) {
-        printf_s("%s<intrinsic> failed!\n", Func<intrinsic::Vector>::name);
+    if (!Func<intrinsic::Vector, intrinsic::Scalar>()()) {
+        printf_s("%s<intrinsic> failed!\n", Func<intrinsic::Vector, intrinsic::Scalar>::name);
         mask = false;
     }
     return mask;

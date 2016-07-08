@@ -7,6 +7,11 @@
 
 namespace aligned {
 
+using Scalar = float;
+
+using std::abs;
+using std::sqrt;
+
 class alignas(__m128) Vector {
 public:
     Vector() {}
@@ -29,15 +34,15 @@ public:
         return Vector(x - a.x, y - a.y, z - a.z, w - a.w);
     }
 
-    Vector operator*(float s) const {
+    Vector operator*(Scalar s) const {
         return Vector(x*s, y*s, z*s, w*s);
     }
 
-    friend Vector operator*(float s, Vector const& a) {
+    friend Vector operator*(Scalar s, Vector const& a) {
         return a * s;
     }
 
-    Vector operator/(float s) const {
+    Vector operator/(Scalar s) const {
         return Vector(x/s, y/s, z/s, w/s);
     }
 
@@ -45,15 +50,15 @@ public:
         return Vector(-x, -y, -z, -w);
     }
 
-    float Length() const {
+    Scalar Length() const {
         return std::sqrt(LengthSqr());
     }
 
-    float LengthFast() const {
+    Scalar LengthFast() const {
         return std::sqrt(LengthSqr());
     }
 
-    float LengthSqr() const {
+    Scalar LengthSqr() const {
         return x * x + y * y + z * z + w * w;
     }
 
@@ -66,7 +71,7 @@ public:
     }
 
     //! Dot product in R4.
-    float operator*(Vector const& a) const {
+    Scalar operator*(Vector const& a) const {
         return x * a.x + y * a.y + z * a.z + w * a.w;
     }
 

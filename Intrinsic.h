@@ -8,6 +8,11 @@
 
 namespace intrinsic {
 
+using Scalar = float;
+
+using std::abs;
+using std::sqrt;
+
 class Vector {
 public:
     Vector() {}
@@ -30,15 +35,15 @@ public:
         return _mm_sub_ps(_value, a._value);
     }
 
-    Vector operator*(float s) const {
+    Vector operator*(Scalar s) const {
         return _mm_mul_ps(_value, _mm_set_ps1(s));
     }
 
-    friend Vector operator*(float s, Vector const& a) {
+    friend Vector operator*(Scalar s, Vector const& a) {
         return a * s;
     }
 
-    Vector operator/(float s) const {
+    Vector operator/(Scalar s) const {
         return _mm_mul_ps(_value, _mm_set_ps1(1.0f / s));
     }
 
@@ -46,16 +51,16 @@ public:
         return _mm_sub_ps(_mm_setzero_ps(), _value);
     }
 
-    float Length() const {
+    Scalar Length() const {
         return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(_value, _value, 0xf1)));
     }
 
-    float LengthFast() const {
+    Scalar LengthFast() const {
         auto lsqr = _mm_dp_ps(_value, _value, 0xf1);
         return _mm_cvtss_f32(_mm_mul_ss(lsqr, _mm_rsqrt_ss(lsqr)));
     }
 
-    float LengthSqr() const {
+    Scalar LengthSqr() const {
         return _mm_cvtss_f32(_mm_dp_ps(_value, _value, 0xf1));
     }
 
@@ -68,7 +73,7 @@ public:
     }
 
     //! Dot product in R4.
-    float operator*(Vector const& a) const {
+    Scalar operator*(Vector const& a) const {
         return _mm_cvtss_f32(_mm_dp_ps(_value, a._value, 0xf1));
     }
 
