@@ -8,10 +8,105 @@
 
 namespace intrinsic {
 
-using Scalar = float;
+class Scalar {
+public:
+    Scalar() {}
+    Scalar(float X)
+        : _value(_mm_set_ps1(X)) {}
 
-using std::abs;
-using std::sqrt;
+    bool operator==(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmpeq_ps(_value, a._value)) == 0xf;
+    }
+
+    bool operator!=(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmpneq_ps(_value, a._value)) == 0xf;
+    }
+
+    bool operator<(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmplt_ps(_value, a._value)) == 0xf;
+    }
+
+    bool operator>(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmpgt_ps(_value, a._value)) == 0xf;
+    }
+
+    bool operator<=(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmple_ps(_value, a._value)) == 0xf;
+    }
+
+    bool operator>=(Scalar const& a) const {
+        return _mm_movemask_ps(_mm_cmpge_ps(_value, a._value)) == 0xf;
+    }
+
+    friend bool operator<(float a, Scalar const& b) {
+        return _mm_movemask_ps(_mm_cmplt_ss(_mm_set_ss(a), b._value)) & 0x1;
+    }
+
+    friend bool operator>(float a, Scalar const& b) {
+        return _mm_movemask_ps(_mm_cmpgt_ss(_mm_set_ss(a), b._value)) & 0x1;
+    }
+
+    friend bool operator<=(float a, Scalar const& b) {
+        return _mm_movemask_ps(_mm_cmple_ss(_mm_set_ss(a), b._value)) & 0x1;
+    }
+
+    friend bool operator>=(float a, Scalar const& b) {
+        return _mm_movemask_ps(_mm_cmpge_ss(_mm_set_ss(a), b._value)) & 0x1;
+    }
+
+    Scalar operator-() const {
+        return _mm_sub_ps(_mm_setzero_ps(), _value);
+    }
+
+    Scalar operator+(Scalar const& a) const {
+        return _mm_add_ps(_value, a._value);
+    }
+
+    Scalar operator-(Scalar const& a) const {
+        return _mm_sub_ps(_value, a._value);
+    }
+
+    Scalar operator*(Scalar const& a) const {
+        return _mm_mul_ps(_value, a._value);
+    }
+
+    Scalar operator/(Scalar const& a) const {
+        return _mm_div_ps(_value, a._value);
+    }
+
+    friend Scalar operator+(float a, Scalar const& b) {
+        return _mm_add_ps(_mm_set_ps1(a), b._value);
+    }
+
+    friend Scalar operator-(float a, Scalar const& b) {
+        return _mm_sub_ps(_mm_set_ps1(a), b._value);
+    }
+
+    friend Scalar operator*(float a, Scalar const& b) {
+        return _mm_mul_ps(_mm_set_ps1(a), b._value);
+    }
+
+    friend Scalar operator/(float a, Scalar const& b) {
+        return _mm_div_ps(_mm_set_ps1(a), b._value);
+    }
+
+    friend Scalar abs(Scalar const& a) {
+        return _mm_and_ps(a._value, _mm_castsi128_ps(_mm_set_epi32(0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff)));
+    }
+
+    friend Scalar sqrt(Scalar const& a) {
+        return _mm_sqrt_ps(a._value);
+    }
+
+private:
+    __m128 _value;
+
+private:
+    friend class Vector;
+
+    Scalar(__m128 const& value)
+        : _value(value) {}
+};
 
 class Vector {
 public:
@@ -35,16 +130,16 @@ public:
         return _mm_sub_ps(_value, a._value);
     }
 
-    Vector operator*(Scalar s) const {
-        return _mm_mul_ps(_value, _mm_set_ps1(s));
+    Vector operator*(Scalar const& s) const {
+        return _mm_mul_ps(_value, s._value);
     }
 
-    friend Vector operator*(Scalar s, Vector const& a) {
+    friend Vector operator*(Scalar const& s, Vector const& a) {
         return a * s;
     }
 
-    Vector operator/(Scalar s) const {
-        return _mm_mul_ps(_value, _mm_set_ps1(1.0f / s));
+    Vector operator/(Scalar const& s) const {
+        return _mm_div_ps(_value, s._value);
     }
 
     Vector operator-() const {
@@ -52,16 +147,16 @@ public:
     }
 
     Scalar Length() const {
-        return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(_value, _value, 0xf1)));
+        return _mm_sqrt_ps(_mm_dp_ps(_value, _value, 0xff));
     }
 
     Scalar LengthFast() const {
-        auto lsqr = _mm_dp_ps(_value, _value, 0xf1);
-        return _mm_cvtss_f32(_mm_mul_ss(lsqr, _mm_rsqrt_ss(lsqr)));
+        auto lsqr = _mm_dp_ps(_value, _value, 0xff);
+        return _mm_mul_ps(lsqr, _mm_rsqrt_ss(lsqr));
     }
 
     Scalar LengthSqr() const {
-        return _mm_cvtss_f32(_mm_dp_ps(_value, _value, 0xf1));
+        return _mm_dp_ps(_value, _value, 0xff);
     }
 
     Vector Normalize() const {
@@ -74,7 +169,7 @@ public:
 
     //! Dot product in R4.
     Scalar operator*(Vector const& a) const {
-        return _mm_cvtss_f32(_mm_dp_ps(_value, a._value, 0xf1));
+        return _mm_dp_ps(_value, a._value, 0xff);
     }
 
     //! Cross product in R3.
@@ -101,7 +196,7 @@ private:
     __m128 _value;
 
 private:
-    Vector(__m128 value)
+    Vector(__m128 const& value)
         : _value(value) {}
 };
 
