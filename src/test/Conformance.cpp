@@ -1,8 +1,8 @@
 #include "Conformance.h"
 
-#include "Default.h"
-#include "Aligned.h"
-#include "Intrinsic.h"
+#include "math/Default.h"
+#include "math/Aligned.h"
+#include "math/Intrinsic.h"
 
 #include <cstdio>
 #include <cmath>

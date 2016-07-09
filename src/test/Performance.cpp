@@ -1,10 +1,10 @@
 #include "Performance.h"
 
-#include "Default.h"
-#include "Aligned.h"
-#include "Intrinsic.h"
+#include "math/Default.h"
+#include "math/Aligned.h"
+#include "math/Intrinsic.h"
 
-#include "Intersect.h"
+#include "math/Intersect.h"
 
 template<typename V, typename S>
 struct vectorAddT {
