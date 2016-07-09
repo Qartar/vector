@@ -8,7 +8,7 @@ int main() {
 
     printf_s("Generating test data...\n");
     constexpr const size_t kIter = (1 << 20);
-    std::vector<float> values(kIter * 17);
+    std::vector<float> values(kIter * 32);
 
     std::uniform_real_distribution<float> r(0.0f, 16.0f);
     std::mt19937_64 gen;
@@ -42,6 +42,9 @@ int main() {
     testVectorProject(values, kIter);
     testVectorReject(values, kIter);
     testVectorReflect(values, kIter);
+    testMatrixScalar(values, kIter);
+    testMatrixVector(values, kIter);
+    testMatrixMatrix(values, kIter);
     testHitSphere(values, kIter);
     testHitCapsule(values, kIter);
 

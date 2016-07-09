@@ -49,5 +49,8 @@ void testVectorCross(std::vector<float> const& data, size_t iterations);
 void testVectorProject(std::vector<float> const& data, size_t iterations);
 void testVectorReject(std::vector<float> const& data, size_t iterations);
 void testVectorReflect(std::vector<float> const& data, size_t iterations);
+void testMatrixScalar(std::vector<float> const& data, size_t iterations);
+void testMatrixVector(std::vector<float> const& data, size_t iterations);
+void testMatrixMatrix(std::vector<float> const& data, size_t iterations);
 void testHitSphere(std::vector<float> const& data, size_t iterations);
 void testHitCapsule(std::vector<float> const& data, size_t iterations);
