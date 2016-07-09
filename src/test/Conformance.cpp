@@ -13,7 +13,7 @@ struct testComparisonT {
 
     bool operator()() const {
         V a(1.0f, 2.0f, 3.0f, 4.0f);
-        V b(2.0f, 3.0f, 4.0f, 5.0f);
+        V b(1.0f, 1.0f, 2.0f, 3.0f);
 
         if (a != a) {
             return false;

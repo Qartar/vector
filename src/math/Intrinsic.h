@@ -120,7 +120,7 @@ public:
     }
 
     bool operator!=(Vector const& a) const {
-        return _mm_movemask_ps(_mm_cmpneq_ps(_value, a._value)) == 0xf;
+        return _mm_movemask_ps(_mm_cmpneq_ps(_value, a._value)) != 0x0;
     }
 
     Vector operator+(Vector const& a) const {
