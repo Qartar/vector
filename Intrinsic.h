@@ -92,7 +92,7 @@ public:
     }
 
     friend Scalar abs(Scalar const& a) {
-        return _mm_andnot_ps(a._value, _mm_set_ps1(-0.f));
+        return _mm_andnot_ps(_mm_set_ps1(-0.f), a._value);
     }
 
     friend Scalar sqrt(Scalar const& a) {
