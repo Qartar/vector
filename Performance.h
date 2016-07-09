@@ -46,5 +46,8 @@ void testVectorNormalize(std::vector<float> const& data, size_t iterations);
 void testVectorNormalizeFast(std::vector<float> const& data, size_t iterations);
 void testVectorDot(std::vector<float> const& data, size_t iterations);
 void testVectorCross(std::vector<float> const& data, size_t iterations);
+void testVectorProject(std::vector<float> const& data, size_t iterations);
+void testVectorReject(std::vector<float> const& data, size_t iterations);
+void testVectorReflect(std::vector<float> const& data, size_t iterations);
 void testHitSphere(std::vector<float> const& data, size_t iterations);
 void testHitCapsule(std::vector<float> const& data, size_t iterations);

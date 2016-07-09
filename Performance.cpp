@@ -311,6 +311,105 @@ struct vectorCrossT {
 };
 
 template<typename V, typename S>
+struct vectorProjectT {
+    static constexpr const char* name = "vectorProject";
+    static constexpr const size_t size = 8;
+
+    struct Args {
+        V a;
+        V b;
+    };
+
+    vectorProjectT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii].a = { *v++, *v++, *v++, *v++ };
+            _input[ii].b = { *v++, *v++, *v++, *v++ };
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        V* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->a.Project(in->b);
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<V> _output;
+};
+
+template<typename V, typename S>
+struct vectorRejectT {
+    static constexpr const char* name = "vectorReject";
+    static constexpr const size_t size = 8;
+
+    struct Args {
+        V a;
+        V b;
+    };
+
+    vectorRejectT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii].a = { *v++, *v++, *v++, *v++ };
+            _input[ii].b = { *v++, *v++, *v++, *v++ };
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        V* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->a.Reject(in->b);
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<V> _output;
+};
+
+template<typename V, typename S>
+struct vectorReflectT {
+    static constexpr const char* name = "vectorReflect";
+    static constexpr const size_t size = 8;
+
+    struct Args {
+        V a;
+        V b;
+    };
+
+    vectorReflectT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii].a = { *v++, *v++, *v++, *v++ };
+            _input[ii].b = { *v++, *v++, *v++, *v++ };
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()(size_t iterations) {
+        Args const* in = _input.data();
+        V* out = _output.data();
+
+        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
+            *out = in->a.Reflect(in->b);
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<V> _output;
+};
+
+template<typename V, typename S>
 struct hitSphereT {
     static constexpr const char* name = "hitSphere";
     static constexpr const size_t size = 10;
@@ -477,6 +576,18 @@ void testVectorDot(std::vector<float> const& data, size_t iterations) {
 
 void testVectorCross(std::vector<float> const& data, size_t iterations) {
     return testPerformance<vectorCrossT>(data, iterations);
+}
+
+void testVectorProject(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorProjectT>(data, iterations);
+}
+
+void testVectorReject(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorRejectT>(data, iterations);
+}
+
+void testVectorReflect(std::vector<float> const& data, size_t iterations) {
+    return testPerformance<vectorReflectT>(data, iterations);
 }
 
 void testHitSphere(std::vector<float> const& data, size_t iterations) {

@@ -2,6 +2,7 @@
 
 #include <xmmintrin.h>
 #include <smmintrin.h>
+#include <immintrin.h>
 
 //! dst[0->3] = { src0[x], src0[y], src1[z], src1[w] }
 #define SHUFPS(x, y, z, w)  ((x << 0) | (y << 2) | (z << 4) | (w << 6))
@@ -190,6 +191,26 @@ public:
         auto shuf4 = _mm_shuffle_ps(prod2, prod2, SHUFPS(1, 2, 0, 3));
 
         return _mm_sub_ps(shuf3, shuf4);
+    }
+
+    //! Return the projection of `a` onto this vector.
+    Vector Project(Vector const& a) const {
+        auto lsqr = _mm_dp_ps(_value, _value, 0xff);
+        auto dota = _mm_dp_ps(_value, a._value, 0xff);
+        return _mm_mul_ps(_value, _mm_div_ps(dota, lsqr));
+    }
+
+    //! Return the rejection of `a` onto this vector.
+    Vector Reject(Vector const& a) const {
+        auto proj = Project(a)._value;
+        return _mm_sub_ps(a._value, proj);
+    }
+
+    //! Return the reflection of `a` onto this vector.
+    Vector Reflect(Vector const& a) const {
+        auto scale = _mm_set_ps1(2.0f);
+        auto proj = Project(a)._value;
+        return _mm_fmsub_ps(proj, scale, a._value);
     }
 
 private:

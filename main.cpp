@@ -44,6 +44,9 @@ int main() {
     testVectorNormalizeFast(values, kIter);
     testVectorDot(values, kIter);
     testVectorCross(values, kIter);
+    testVectorProject(values, kIter);
+    testVectorReject(values, kIter);
+    testVectorReflect(values, kIter);
     testHitSphere(values, kIter);
     testHitCapsule(values, kIter);
 

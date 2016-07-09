@@ -83,6 +83,21 @@ public:
                       x * a.y - y * a.x, 0.0f);
     }
 
+    //! Return the projection of `a` onto this vector.
+    Vector Project(Vector const& a) const {
+        return (*this * a * *this) / LengthSqr();
+    }
+
+    //! Return the rejection of `a` onto this vector.
+    Vector Reject(Vector const& a) const {
+        return a - Project(a);
+    }
+
+    //! Return the reflection of `a` onto this vector.
+    Vector Reflect(Vector const& a) const {
+        return a - 2.0f * Project(a);
+    }
+
 protected:
     float x, y, z, w;
 };
