@@ -97,7 +97,91 @@ public:
     }
 
 protected:
-    float x, y, z, w;
+    Scalar x, y, z, w;
+
+protected:
+    friend class Matrix;
+
+    Scalar& operator[](size_t index) {
+        return (&x)[index];
+    }
+
+    Scalar const& operator[](size_t index) const {
+        return (&x)[index];
+    }
+};
+
+class Matrix {
+public:
+    Matrix() {}
+    //! Construct with column vectors
+    Matrix(Vector const& X, Vector const& Y, Vector const& Z, Vector const& W)
+        : x(X), y(Y), z(Z), w(W) {}
+    Matrix(float m11, float m12, float m13, float m14,
+           float m21, float m22, float m23, float m24,
+           float m31, float m32, float m33, float m34,
+           float m41, float m42, float m43, float m44)
+        : x(m11, m21, m31, m41)
+        , y(m12, m22, m32, m42)
+        , z(m13, m23, m33, m43)
+        , w(m14, m24, m34, m44) {}
+
+    bool operator==(Matrix const& a) const {
+        return x == a.x && y == a.y && z == a.z && w == a.w;
+    }
+
+    bool operator!=(Matrix const& a) const {
+        return x != a.x || y != a.y || z != a.z || w != a.w;
+    }
+
+    Matrix operator*(Scalar s) const {
+        return Matrix(x * s, y * s, z * s, w * s);
+    }
+
+    Matrix operator/(Scalar s) const {
+        return Matrix(x / s, y / s, z / s, w / s);
+    }
+
+    friend Matrix operator*(Scalar s, Matrix const& m) {
+        return m * s;
+    }
+
+    Vector operator*(Vector const& x) const {
+        Vector v;
+
+        for (size_t ii = 0; ii < 4; ++ii) {
+            v[ii] = (*this)[0][ii] * x[0];
+            for (size_t kk = 1; kk < 4; ++kk) {
+                v[ii] += (*this)[kk][ii] * x[kk];
+            }
+        }
+        return v;
+    }
+
+    Matrix operator*(Matrix const& a) const {
+        Matrix m;
+
+        for (size_t ii = 0; ii < 4; ++ii) {
+            for (size_t jj = 0; jj < 4; ++jj) {
+                m[jj][ii] = (*this)[0][ii] * a[jj][0];
+                for (size_t kk = 1; kk < 4; ++kk) {
+                    m[jj][ii] += (*this)[kk][ii] * a[jj][kk];
+                }
+            }
+        }
+        return m;
+    }
+
+protected:
+    Vector x, y, z, w;
+
+    Vector& operator[](size_t index) {
+        return (&x)[index];
+    }
+
+    Vector const& operator[](size_t index) const {
+        return (&x)[index];
+    }
 };
 
 } // namespace default

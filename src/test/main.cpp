@@ -23,6 +23,7 @@ int main() {
     testLength();
     testDotProduct();
     testCrossProduct();
+    testMatrixProduct();
 
     printf_s("Testing performance...\n");
     SetProcessAffinityMask(GetCurrentProcess(), 1);

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cmath>
 
-template<typename V, typename S>
+template<typename M, typename V, typename S>
 struct testComparisonT {
     static constexpr const char* name = "testComparison";
 
@@ -31,7 +31,7 @@ struct testComparisonT {
     }
 };
 
-template<typename V, typename S>
+template<typename M, typename V, typename S>
 struct testAlgebraicT {
     static constexpr const char* name = "testAlgebraic";
 
@@ -69,7 +69,7 @@ struct testAlgebraicT {
     }
 };
 
-template<typename V, typename S>
+template<typename M, typename V, typename S>
 struct testLengthT {
     static constexpr const char* name = "testLength";
 
@@ -99,7 +99,7 @@ struct testLengthT {
     }
 };
 
-template<typename V, typename S>
+template<typename M, typename V, typename S>
 struct testDotProductT {
     static constexpr const char* name = "testDotProduct";
 
@@ -114,7 +114,7 @@ struct testDotProductT {
     }
 };
 
-template<typename V, typename S>
+template<typename M, typename V, typename S>
 struct testCrossProductT {
     static constexpr const char* name = "testCrossProduct";
 
@@ -133,19 +133,145 @@ struct testCrossProductT {
     }
 };
 
-template<template<typename, typename> typename Func>
+template<typename M, typename V, typename S>
+struct testMatrixScalarProductT {
+    static constexpr const char* name = "testMatrixScalarProduct";
+
+    bool operator()() const {
+        M A = {
+            1.f, 2.f, 3.f, 4.f,
+            2.f, 3.f, 4.f, 3.f,
+            3.f, 4.f, 3.f, 2.f,
+            4.f, 3.f, 2.f, 1.f,
+        };
+
+        M B = {
+            2.f, 4.f, 6.f, 8.f,
+            4.f, 6.f, 8.f, 6.f,
+            6.f, 8.f, 6.f, 4.f,
+            8.f, 6.f, 4.f, 2.f,
+        };
+
+        M C = A * 2.f;
+
+        if (C != B) {
+            return false;
+        }
+
+        M D = B / 2.0f;
+
+        if (D != A) {
+            return false;
+        }
+
+        return true;
+    }
+};
+
+template<typename M, typename V, typename S>
+struct testMatrixVectorProductT {
+    static constexpr const char* name = "testMatrixVectorProduct";
+
+    bool operator()() const {
+        M I = {
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+            0.f, 0.f, 0.f, 1.f,
+        };
+
+        V x = {
+            1.f, 2.f, 3.f, 4.f,
+        };
+
+        if (I * x != x) {
+            return false;
+        }
+
+        M A = {
+            0.f, 0.f, 0.f, 1.f,
+            0.f, 0.f, 1.f, 0.f,
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+        };
+
+        V y = {
+            4.f, 3.f, 1.f, 2.f,
+        };
+
+        if (A * x != y) {
+            return false;
+        }
+
+        if (A * x + A * y != A * (x + y)) {
+            return false;
+        }
+
+        S z = 0.5f;
+
+        if (A * (x * z) != (A * x) * z) {
+            return false;
+        }
+
+        return true;
+    }
+};
+
+template<typename M, typename V, typename S>
+struct testMatrixMatrixProductT {
+    static constexpr const char* name = "testMatrixMatrixProduct";
+
+    bool operator()() const {
+        M A = {
+            1.f, 2.f, 3.f, 4.f,
+            2.f, 3.f, 4.f, 3.f,
+            3.f, 4.f, 3.f, 2.f,
+            4.f, 3.f, 2.f, 1.f,
+        };
+
+        M B = {
+            0.f, 0.f, 0.f, 1.f,
+            0.f, 0.f, 1.f, 0.f,
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+        };
+
+        M C = {
+            3.f, 4.f, 2.f, 1.f,
+            4.f, 3.f, 3.f, 2.f,
+            3.f, 2.f, 4.f, 3.f,
+            2.f, 1.f, 3.f, 4.f,
+        };
+
+        if (A * B != C) {
+            return false;
+        }
+
+        V x = {
+            1.f, 2.f, 3.f, 4.f,
+        };
+
+        if ((B * A) * x != B * (A * x)) {
+            return false;
+        }
+
+        return true;
+    }
+};
+
+template<template<typename, typename, typename> typename Func>
 bool testFunc() {
     bool mask = true;
-    if (!Func<default::Vector, default::Scalar>()()) {
-        printf_s("%s<default> failed!\n", Func<default::Vector, default::Scalar>::name);
+    if (!Func<default::Matrix, default::Vector, default::Scalar>()()) {
+        printf_s("%s<default> failed!\n", Func<default::Matrix, default::Vector, default::Scalar>::name);
         mask = false;
     }
-    if (!Func<aligned::Vector, aligned::Scalar>()()) {
-        printf_s("%s<aligned> failed!\n", Func<aligned::Vector, aligned::Scalar>::name);
+    if (!Func<aligned::Matrix, aligned::Vector, aligned::Scalar>()()) {
+        printf_s("%s<aligned> failed!\n", Func<aligned::Matrix, aligned::Vector, aligned::Scalar>::name);
         mask = false;
     }
-    if (!Func<intrinsic::Vector, intrinsic::Scalar>()()) {
-        printf_s("%s<intrinsic> failed!\n", Func<intrinsic::Vector, intrinsic::Scalar>::name);
+    if (!Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()()) {
+        printf_s("%s<intrinsic> failed!\n", Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>::name);
         mask = false;
     }
     return mask;
@@ -169,4 +295,11 @@ bool testDotProduct() {
 
 bool testCrossProduct() {
     return testFunc<testCrossProductT>();
+}
+
+bool testMatrixProduct() {
+    bool b1 = testFunc<testMatrixScalarProductT>();
+    bool b2 = testFunc<testMatrixVectorProductT>();
+    bool b3 = testFunc<testMatrixMatrixProductT>();
+    return b1 && b2 && b3;
 }

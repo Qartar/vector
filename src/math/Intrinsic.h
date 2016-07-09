@@ -104,6 +104,7 @@ private:
 
 private:
     friend class Vector;
+    friend class Matrix;
 
     Scalar(__m128 const& value)
         : _value(value) {}
@@ -217,10 +218,86 @@ private:
     __m128 _value;
 
 private:
+    friend class Matrix;
+
     Vector(__m128 const& value)
         : _value(value) {}
 };
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
+
+class Matrix {
+public:
+    Matrix() {}
+    //! Construct with column vectors
+    Matrix(Vector const& X, Vector const& Y, Vector const& Z, Vector const& W)
+        : x(X), y(Y), z(Z), w(W) {}
+    Matrix(float m11, float m12, float m13, float m14,
+           float m21, float m22, float m23, float m24,
+           float m31, float m32, float m33, float m34,
+           float m41, float m42, float m43, float m44)
+        : x(m11, m21, m31, m41)
+        , y(m12, m22, m32, m42)
+        , z(m13, m23, m33, m43)
+        , w(m14, m24, m34, m44) {}
+
+    bool operator==(Matrix const& a) const {
+        return x == a.x && y == a.y && z == a.z && w == a.w;
+    }
+
+    bool operator!=(Matrix const& a) const {
+        return x != a.x || y != a.y || z != a.z || w != a.w;
+    }
+
+    Matrix operator*(Scalar const& s) const {
+        return Matrix(_mm_mul_ps(x._value, s._value),
+                      _mm_mul_ps(y._value, s._value),
+                      _mm_mul_ps(z._value, s._value),
+                      _mm_mul_ps(w._value, s._value));
+    }
+
+    Matrix operator/(Scalar const& s) const {
+        return Matrix(_mm_div_ps(x._value, s._value),
+                      _mm_div_ps(y._value, s._value),
+                      _mm_div_ps(z._value, s._value),
+                      _mm_div_ps(w._value, s._value));
+    }
+
+    friend Matrix operator*(Scalar const& s, Matrix const& m) {
+        return m * s;
+    }
+
+    Vector operator*(Vector const& v) const {
+        auto rx = _mm_shuffle_ps(v._value, v._value, SHUFPS(0, 0, 0, 0));
+        auto ry = _mm_shuffle_ps(v._value, v._value, SHUFPS(1, 1, 1, 1));
+        auto rz = _mm_shuffle_ps(v._value, v._value, SHUFPS(2, 2, 2, 2));
+        auto rw = _mm_shuffle_ps(v._value, v._value, SHUFPS(3, 3, 3, 3));
+
+        auto r1 = _mm_mul_ps(x._value, rx);
+        auto r2 = _mm_mul_ps(y._value, ry);
+        auto r3 = _mm_mul_ps(z._value, rz);
+        auto r4 = _mm_mul_ps(w._value, rw);
+
+        auto r5 = _mm_add_ps(r1, r2);
+        auto r6 = _mm_add_ps(r3, r4);
+        return _mm_add_ps(r5, r6);
+    }
+
+    Matrix operator*(Matrix const& a) const {
+        return Matrix((*this) * a.x,
+                      (*this) * a.y,
+                      (*this) * a.z,
+                      (*this) * a.w);
+    }
+
+protected:
+    Vector x, y, z, w;
+
+protected:
+    Matrix(__m128 const& X, __m128 const& Y, __m128 const& Z, __m128 const& W)
+        : x(X), y(Y), z(Z), w(W) {}
+};
+
+static_assert(alignof(Matrix) == alignof(__m128), "Bad alignment!");
 
 } // namespace intrinsic
