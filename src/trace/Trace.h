@@ -7,7 +7,7 @@
 template<typename M, typename V, typename S>
 void TraceView(Frustum<M, V, S> const& view, Scene<M, V, S> const& scene, Image& image)
 {
-    Color default_color = {.2f, .2f, .2f, 1.f};
+    Color default_color = {.1f, .1f, .1f, 1.f};
     S zscale = view.Near() / view.Far();
 
     V dz = view.Forward();
@@ -33,11 +33,11 @@ void Trace(char const* filename = nullptr) {
 
     spheres[0].origin   = V(3.f, 0.f, 0.f, 1.f);
     spheres[0].radius   = .5f;
-    spheres[0].material = Material{Color{.4f, .2f, .1f, 1.f}};
+    spheres[0].material = Material{Color{.2f, .05f, .02f, 1.f}};
 
     spheres[1].origin   = V(6.f, 1.f, 1.f, 1.f);
     spheres[1].radius   = 1.5f;
-    spheres[1].material = Material{Color{.2f, .1f, .4f, 1.f}};
+    spheres[1].material = Material{Color{.05f, .02f, .2f, 1.f}};
 
     Frustum<M, V, S>    view(
         V(0.f, 0.f, 0.f, 1.f),
