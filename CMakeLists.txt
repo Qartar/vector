@@ -14,3 +14,16 @@ add_executable(vector
 )
 
 target_link_libraries(vector math)
+
+add_executable(trace
+    src/trace/Trace.cpp
+    src/trace/Trace.h
+    src/trace/Frustum.h
+
+    src/trace/Image.cpp
+    src/trace/Image.h
+    src/trace/Scene.h
+    src/trace/Color.h
+)
+
+target_link_libraries(trace math)
