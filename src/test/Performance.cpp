@@ -26,12 +26,11 @@ struct vectorAddT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a + in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a + in.b;
         }
     }
 
@@ -59,12 +58,11 @@ struct vectorSubT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a - in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a - in.b;
         }
     }
 
@@ -91,12 +89,11 @@ struct scalarMulT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->v * in->s;
+        for (auto const& in: _input) {
+            *out++ = in.v * in.s;
         }
     }
 
@@ -123,12 +120,11 @@ struct scalarDivT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->v / in->s;
+        for (auto const& in: _input) {
+            *out++ = in.v / in.s;
         }
     }
 
@@ -150,12 +146,11 @@ struct vectorLengthT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        V const* in = _input.data();
+    void operator()() {
         S* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->Length();
+        for (auto const& in: _input) {
+            *out++ = in.Length();
         }
     }
 
@@ -177,12 +172,11 @@ struct vectorLengthFastT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        V const* in = _input.data();
+    void operator()() {
         S* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->LengthFast();
+        for (auto const& in: _input) {
+            *out++ = in.LengthFast();
         }
     }
 
@@ -204,12 +198,11 @@ struct vectorNormalizeT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        V const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->Normalize();
+        for (auto const& in: _input) {
+            *out++ = in.Normalize();
         }
     }
 
@@ -231,12 +224,11 @@ struct vectorNormalizeFastT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        V const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->NormalizeFast();
+        for (auto const& in: _input) {
+            *out++ = in.NormalizeFast();
         }
     }
 
@@ -264,12 +256,11 @@ struct vectorDotT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         S* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a * in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a * in.b;
         }
     }
 
@@ -297,12 +288,11 @@ struct vectorCrossT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a % in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a % in.b;
         }
     }
 
@@ -330,12 +320,11 @@ struct vectorProjectT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a.Project(in->b);
+        for (auto const& in: _input) {
+            *out++ = in.a.Project(in.b);
         }
     }
 
@@ -363,12 +352,11 @@ struct vectorRejectT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a.Reject(in->b);
+        for (auto const& in: _input) {
+            *out++ = in.a.Reject(in.b);
         }
     }
 
@@ -396,12 +384,11 @@ struct vectorReflectT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a.Reflect(in->b);
+        for (auto const& in: _input) {
+            *out++ = in.a.Reflect(in.b);
         }
     }
 
@@ -434,12 +421,11 @@ struct matrixScalarT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         M* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a * in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a * in.b;
         }
     }
 
@@ -474,12 +460,11 @@ struct matrixVectorT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         V* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a * in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a * in.b;
         }
     }
 
@@ -517,12 +502,11 @@ struct matrixMatrixT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         M* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in, ++out) {
-            *out = in->a * in->b;
+        for (auto const& in: _input) {
+            *out++ = in.a * in.b;
         }
     }
 
@@ -555,12 +539,11 @@ struct hitSphereT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         Hit<V, S>* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in) {
-            hitSphere<V, S>(in->ray, in->sphere, *out++);
+        for (auto const& in: _input) {
+            hitSphere<V, S>(in.ray, in.sphere, *out++);
         }
     }
 
@@ -595,12 +578,11 @@ struct hitCapsuleT {
         _output.resize(data.size() / size);
     }
 
-    void operator()(size_t iterations) {
-        Args const* in = _input.data();
+    void operator()() {
         Hit<V, S>* out = _output.data();
 
-        for (size_t ii = 0; ii < iterations; ++ii, ++in) {
-            hitCapsule<V, S>(in->ray, in->capsule, *out++);
+        for (auto const& in: _input) {
+            hitCapsule<V, S>(in.ray, in.capsule, *out++);
         }
     }
 
@@ -609,17 +591,17 @@ struct hitCapsuleT {
 };
 
 template<typename Func>
-double testPerformanceSingle(Func& fn, size_t iterations) {
+double testPerformanceSingle(Func& fn) {
     Timer t;
 
     t.Start();
-    fn(iterations);
+    fn();
     t.Stop();
     return t.Microseconds();
 }
 
 template<template<typename, typename, typename> typename Func, size_t kLoopCount = 16>
-void testPerformance(std::vector<float> const& data, size_t iterations) {
+void testPerformance(std::vector<float> const& data) {
     double loop_timing[3][kLoopCount];
     double timing[3];
 
@@ -629,16 +611,16 @@ void testPerformance(std::vector<float> const& data, size_t iterations) {
 
     // Warm-up passes
     for (size_t ii = 0; ii < 4; ++ii) {
-        testPerformanceSingle(fn0, iterations);
-        testPerformanceSingle(fn1, iterations);
-        testPerformanceSingle(fn2, iterations);
+        testPerformanceSingle(fn0);
+        testPerformanceSingle(fn1);
+        testPerformanceSingle(fn2);
     }
 
     // Measured passes
     for (size_t ii = 0; ii < kLoopCount; ++ii) {
-        loop_timing[0][ii] = testPerformanceSingle(fn0, iterations);
-        loop_timing[1][ii] = testPerformanceSingle(fn1, iterations);
-        loop_timing[2][ii] = testPerformanceSingle(fn2, iterations);
+        loop_timing[0][ii] = testPerformanceSingle(fn0);
+        loop_timing[1][ii] = testPerformanceSingle(fn1);
+        loop_timing[2][ii] = testPerformanceSingle(fn2);
     }
 
     // Sort passes
@@ -659,74 +641,74 @@ void testPerformance(std::vector<float> const& data, size_t iterations) {
              1.0e2 * timing[0] / timing[2]);
 }
 
-void testVectorAdd(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorAddT>(data, iterations);
+void testVectorAdd(std::vector<float> const& data) {
+    return testPerformance<vectorAddT>(data);
 }
 
-void testVectorSub(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorSubT>(data, iterations);
+void testVectorSub(std::vector<float> const& data) {
+    return testPerformance<vectorSubT>(data);
 }
 
-void testScalarMul(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<scalarMulT>(data, iterations);
+void testScalarMul(std::vector<float> const& data) {
+    return testPerformance<scalarMulT>(data);
 }
 
-void testScalarDiv(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<scalarDivT>(data, iterations);
+void testScalarDiv(std::vector<float> const& data) {
+    return testPerformance<scalarDivT>(data);
 }
 
-void testVectorLength(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorLengthT>(data, iterations);
+void testVectorLength(std::vector<float> const& data) {
+    return testPerformance<vectorLengthT>(data);
 }
 
-void testVectorLengthFast(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorLengthFastT>(data, iterations);
+void testVectorLengthFast(std::vector<float> const& data) {
+    return testPerformance<vectorLengthFastT>(data);
 }
 
-void testVectorNormalize(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorNormalizeT>(data, iterations);
+void testVectorNormalize(std::vector<float> const& data) {
+    return testPerformance<vectorNormalizeT>(data);
 }
 
-void testVectorNormalizeFast(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorNormalizeFastT>(data, iterations);
+void testVectorNormalizeFast(std::vector<float> const& data) {
+    return testPerformance<vectorNormalizeFastT>(data);
 }
 
-void testVectorDot(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorDotT>(data, iterations);
+void testVectorDot(std::vector<float> const& data) {
+    return testPerformance<vectorDotT>(data);
 }
 
-void testVectorCross(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorCrossT>(data, iterations);
+void testVectorCross(std::vector<float> const& data) {
+    return testPerformance<vectorCrossT>(data);
 }
 
-void testVectorProject(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorProjectT>(data, iterations);
+void testVectorProject(std::vector<float> const& data) {
+    return testPerformance<vectorProjectT>(data);
 }
 
-void testVectorReject(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorRejectT>(data, iterations);
+void testVectorReject(std::vector<float> const& data) {
+    return testPerformance<vectorRejectT>(data);
 }
 
-void testVectorReflect(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<vectorReflectT>(data, iterations);
+void testVectorReflect(std::vector<float> const& data) {
+    return testPerformance<vectorReflectT>(data);
 }
 
-void testMatrixScalar(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<matrixScalarT>(data, iterations);
+void testMatrixScalar(std::vector<float> const& data) {
+    return testPerformance<matrixScalarT>(data);
 }
 
-void testMatrixVector(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<matrixVectorT>(data, iterations);
+void testMatrixVector(std::vector<float> const& data) {
+    return testPerformance<matrixVectorT>(data);
 }
 
-void testMatrixMatrix(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<matrixMatrixT>(data, iterations);
+void testMatrixMatrix(std::vector<float> const& data) {
+    return testPerformance<matrixMatrixT>(data);
 }
 
-void testHitSphere(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<hitSphereT>(data, iterations);
+void testHitSphere(std::vector<float> const& data) {
+    return testPerformance<hitSphereT>(data);
 }
 
-void testHitCapsule(std::vector<float> const& data, size_t iterations) {
-    return testPerformance<hitCapsuleT>(data, iterations);
+void testHitCapsule(std::vector<float> const& data) {
+    return testPerformance<hitCapsuleT>(data);
 }

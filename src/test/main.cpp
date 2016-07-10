@@ -7,8 +7,8 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
 
     printf_s("Generating test data...\n");
-    constexpr const size_t kIter = (1 << 20);
-    std::vector<float> values(kIter * 32);
+    constexpr const size_t kIter = (1 << 24);
+    std::vector<float> values(kIter);
 
     std::uniform_real_distribution<float> r(0.0f, 16.0f);
     std::mt19937_64 gen;
@@ -29,24 +29,24 @@ int main() {
     SetProcessAffinityMask(GetCurrentProcess(), 1);
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-    testVectorAdd(values, kIter);
-    testVectorSub(values, kIter);
-    testScalarMul(values, kIter);
-    testScalarDiv(values, kIter);
-    testVectorLength(values, kIter);
-    testVectorLengthFast(values, kIter);
-    testVectorNormalize(values, kIter);
-    testVectorNormalizeFast(values, kIter);
-    testVectorDot(values, kIter);
-    testVectorCross(values, kIter);
-    testVectorProject(values, kIter);
-    testVectorReject(values, kIter);
-    testVectorReflect(values, kIter);
-    testMatrixScalar(values, kIter);
-    testMatrixVector(values, kIter);
-    testMatrixMatrix(values, kIter);
-    testHitSphere(values, kIter);
-    testHitCapsule(values, kIter);
+    testVectorAdd(values);
+    testVectorSub(values);
+    testScalarMul(values);
+    testScalarDiv(values);
+    testVectorLength(values);
+    testVectorLengthFast(values);
+    testVectorNormalize(values);
+    testVectorNormalizeFast(values);
+    testVectorDot(values);
+    testVectorCross(values);
+    testVectorProject(values);
+    testVectorReject(values);
+    testVectorReflect(values);
+    testMatrixScalar(values);
+    testMatrixVector(values);
+    testMatrixMatrix(values);
+    testHitSphere(values);
+    testHitCapsule(values);
 
     return 0;
 }
