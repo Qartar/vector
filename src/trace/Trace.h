@@ -29,15 +29,25 @@ void TraceView(Frustum<M, V, S> const& view, Scene<M, V, S> const& scene, Image&
 
 template<typename M, typename V, typename S>
 void Trace(char const* filename = nullptr) {
+    Light<M, V, S>          lights[2];
+
+    lights[0].origin        = V(2.f, 0.f, 4.f, 1.f);
+    lights[0].color         = {1.f, 1.f, 1.f, 1.f};
+    lights[0].intensity     = 1.f;
+
+    lights[1].origin        = V(6.f, -4.f, -2.f, 1.f);
+    lights[1].color         = {.2f, 1.f, 1.f, 1.f};
+    lights[1].intensity     = 1.f;
+
     TraceSphere<M, V, S>    spheres[2];
 
-    spheres[0].origin   = V(3.f, 0.f, 0.f, 1.f);
-    spheres[0].radius   = .5f;
-    spheres[0].material = Material{Color{.2f, .05f, .02f, 1.f}};
+    spheres[0].origin       = V(3.f, 0.f, 0.f, 1.f);
+    spheres[0].radius       = .5f;
+    spheres[0].material     = Material{Color{.2f, .05f, .02f, 1.f}, .8f};
 
-    spheres[1].origin   = V(6.f, 1.f, 1.f, 1.f);
-    spheres[1].radius   = 1.5f;
-    spheres[1].material = Material{Color{.05f, .02f, .2f, 1.f}};
+    spheres[1].origin       = V(6.f, 1.f, 1.f, 1.f);
+    spheres[1].radius       = 1.5f;
+    spheres[1].material     = Material{Color{.05f, .02f, .2f, 1.f}, .1f};
 
     Frustum<M, V, S>    view(
         V(0.f, 0.f, 0.f, 1.f),
@@ -47,7 +57,7 @@ void Trace(char const* filename = nullptr) {
         .1f, 8.f, 1.f, 1.f);
 
     Image               image(256, 256);
-    Scene<M, V, S>      scene(spheres);
+    Scene<M, V, S>      scene(lights, spheres);
 
     TraceView(view, scene, image);
 

@@ -99,6 +99,10 @@ public:
         return _mm_sqrt_ps(a._value);
     }
 
+    float ToFloat() const {
+        return _mm_cvtss_f32(_value);
+    }
+
 private:
     __m128 _value;
 

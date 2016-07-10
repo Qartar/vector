@@ -6,9 +6,9 @@
 
 int main()
 {
-    Trace<default::Matrix, default::Vector, default::Scalar>("a.bmp");
-    Trace<aligned::Matrix, aligned::Vector, aligned::Scalar>("b.bmp");
-    Trace<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>("c.bmp");
+    Trace<default::Matrix, default::Vector, default::Scalar>("trace/default.bmp");
+    Trace<aligned::Matrix, aligned::Vector, aligned::Scalar>("trace/aligned.bmp");
+    Trace<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>("trace/intrinsic.bmp");
 
     return 0;
 }
