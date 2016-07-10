@@ -209,9 +209,9 @@ public:
 
     //! Return the reflection of `a` onto this vector.
     Vector Reflect(Vector const& a) const {
-        auto scale = _mm_set_ps1(2.0f);
+        auto scale = _mm_set_ps1(-2.0f);
         auto proj = Project(a)._value;
-        return _mm_fmsub_ps(proj, scale, a._value);
+        return _mm_fmadd_ps(proj, scale, a._value);
     }
 
 private:
