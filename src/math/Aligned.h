@@ -7,11 +7,17 @@
 
 namespace aligned {
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 using Scalar = float;
 
 using std::abs;
 using std::sqrt;
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class alignas(__m128) Vector {
 public:
     Vector() {}
@@ -120,6 +126,9 @@ protected:
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class alignas(__m128) Matrix {
 public:
     Matrix() {}

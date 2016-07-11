@@ -9,6 +9,9 @@
 
 namespace intrinsic {
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class Scalar {
 public:
     Scalar() {}
@@ -123,6 +126,9 @@ private:
         : _value(value) {}
 };
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class VectorScalar {
 public:
     bool operator==(Scalar const& s) const {
@@ -219,6 +225,9 @@ private:
     size_t _index;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class Vector {
 public:
     Vector() {}
@@ -354,6 +363,9 @@ private:
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+ */
 class Matrix {
 public:
     Matrix() {}
