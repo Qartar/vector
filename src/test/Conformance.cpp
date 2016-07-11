@@ -261,20 +261,22 @@ struct testMatrixMatrixProductT {
 
 template<template<typename, typename, typename> typename Func>
 bool testFunc() {
-    bool mask = true;
-    if (!Func<default::Matrix, default::Vector, default::Scalar>()()) {
-        printf_s("%s<default> failed!\n", Func<default::Matrix, default::Vector, default::Scalar>::name);
-        mask = false;
-    }
-    if (!Func<aligned::Matrix, aligned::Vector, aligned::Scalar>()()) {
-        printf_s("%s<aligned> failed!\n", Func<aligned::Matrix, aligned::Vector, aligned::Scalar>::name);
-        mask = false;
-    }
-    if (!Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()()) {
-        printf_s("%s<intrinsic> failed!\n", Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>::name);
-        mask = false;
-    }
-    return mask;
+    constexpr char const* result_strings[] = {
+        "failed", "ok",
+    };
+
+    bool b0 = Func<default::Matrix, default::Vector, default::Scalar>()();
+    bool b1 = Func<aligned::Matrix, aligned::Vector, aligned::Scalar>()();
+    bool b2 = Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()();
+
+    // Print results
+    printf_s("  %-24s %-15s %-15s %-15s\n",
+             Func<default::Matrix, default::Vector, default::Scalar>::name,
+             result_strings[b0],
+             result_strings[b1],
+             result_strings[b2]);
+
+    return b0 && b1 && b2;
 }
 
 bool testComparison() {
