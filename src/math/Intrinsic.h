@@ -15,6 +15,10 @@ public:
     Scalar(float X)
         : _value(_mm_set_ps1(X)) {}
 
+    explicit operator float() const {
+        return _mm_cvtss_f32(_value);
+    }
+
     bool operator==(Scalar const& a) const {
         return _mm_comieq_ss(_value, a._value) == 1;
     }
@@ -105,10 +109,6 @@ public:
 
     friend Scalar pow(Scalar const& a, Scalar const& b) {
         return std::pow(_mm_cvtss_f32(a._value), _mm_cvtss_f32(b._value));
-    }
-
-    float ToFloat() const {
-        return _mm_cvtss_f32(_value);
     }
 
 private:
@@ -335,6 +335,11 @@ public:
         auto scale = _mm_set_ps1(-2.0f);
         auto proj = Project(a)._value;
         return _mm_fmadd_ps(proj, scale, a._value);
+    }
+
+    //! Return the component-wise product with `a`.
+    Vector Scale(Vector const& a) const {
+        return _mm_mul_ps(_value, a._value);
     }
 
 private:

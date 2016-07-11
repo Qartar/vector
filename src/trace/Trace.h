@@ -5,9 +5,9 @@
 #include "Image.h"
 
 template<typename M, typename V, typename S>
-void TraceView(Frustum<M, V, S> const& view, Scene<M, V, S> const& scene, Image& image)
+void TraceView(Frustum<M, V, S> const& view, Scene<M, V, S> const& scene, Image<M, V, S>& image)
 {
-    Color default_color = {.1f, .1f, .1f, 1.f};
+    Color<M, V, S> default_color = {.1f, .1f, .1f, 1.f};
     S zscale = view.Near() / view.Far();
 
     V dz = view.Forward();
@@ -43,11 +43,11 @@ void Trace(size_t width, size_t height, char const* filename = nullptr) {
 
     spheres[0].origin       = V(3.f, 0.f, 0.f, 1.f);
     spheres[0].radius       = .5f;
-    spheres[0].material     = Material{Color{.2f, .05f, .02f, 1.f}, .4f, 2.5f};
+    spheres[0].material     = Material<M, V, S>{Color<M, V, S>{.2f, .05f, .02f, 1.f}, .4f, 2.5f};
 
     spheres[1].origin       = V(6.f, 1.f, 1.f, 1.f);
     spheres[1].radius       = 1.5f;
-    spheres[1].material     = Material{Color{.05f, .02f, .2f, 1.f}, .02f, 1.3f};
+    spheres[1].material     = Material<M, V, S>{Color<M, V, S>{.05f, .02f, .2f, 1.f}, .02f, 1.3f};
 
     Frustum<M, V, S>    view(
         V(.5f, .5f, .4f, 1.f),
@@ -56,7 +56,7 @@ void Trace(size_t width, size_t height, char const* filename = nullptr) {
         V(0.f, 0.f, 1.f, 0.f),
         .1f, 8.f, 1.f, 1.f);
 
-    Image               image(width, height);
+    Image<M, V, S>      image(width, height);
     Scene<M, V, S>      scene(lights, spheres);
 
     TraceView(view, scene, image);

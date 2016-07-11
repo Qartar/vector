@@ -106,6 +106,11 @@ public:
         return a - 2.0f * Project(a);
     }
 
+    //! Return the component-wise product with `a`.
+    Vector Scale(Vector const& a) const {
+        return {x * a.x, y * a.y, z * a.z, w * a.w};
+    }
+
 protected:
     Scalar x, y, z, w;
 

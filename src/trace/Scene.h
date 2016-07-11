@@ -7,38 +7,41 @@
 
 #include "math/Intersect.h"
 
+template<typename M, typename V, typename S>
 struct Material {
-    Color   color;
-    float   roughness;
-    float   refractive_index;
+    Color<M, V, S> color;
+    float roughness;
+    float refractive_index;
 };
 
 template<typename M, typename V, typename S>
 struct Light {
     V origin;
-    Color color;
+    Color<M, V, S> color;
     S intensity;
 };
 
 template<typename M, typename V, typename S>
 struct Object {
     M transform;
-    Material material;
+    Material<M, V, S> material;
 };
 
 template<typename M, typename V, typename S>
 struct TraceHit : Hit<V, S> {
-    Material material;
+    Material<M, V, S> material;
 };
 
 template<typename M, typename V, typename S>
 struct TraceSphere : Sphere<V, S> {
-    Material material;
+    Material<M, V, S> material;
 };
 
 template<typename M, typename V, typename S>
 class Scene {
 public:
+    using Color = Color<M, V, S>;
+    using Material = Material<M, V, S>;
     using Light = Light<M, V, S>;
     using TraceHit = TraceHit<M, V, S>;
     using TraceSphere = TraceSphere<M, V, S>;
