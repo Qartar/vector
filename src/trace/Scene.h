@@ -230,26 +230,6 @@ private:
     constexpr static const float kPi = 3.1415926535897932f;
 
     template<typename T>
-    float pow(T const& x, float p) const {
-        return std::pow(x.ToFloat(), p);
-    }
-
-    template<>
-    float pow(float const& x, float p) const {
-        return std::pow(x, p);
-    }
-
-    template<typename T>
-    float exp(T const& x) const {
-        return std::exp(x.ToFloat());
-    }
-
-    template<>
-    float exp(float const& x) const {
-        return std::exp(x);
-    }
-
-    template<typename T>
     T const& min3(T const& x, T const& y, T const& z) const {
         return min(x, min(y, z));
     }

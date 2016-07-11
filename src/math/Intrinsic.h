@@ -99,6 +99,14 @@ public:
         return _mm_sqrt_ps(a._value);
     }
 
+    friend Scalar exp(Scalar const& a) {
+        return std::exp(_mm_cvtss_f32(a._value));
+    }
+
+    friend Scalar pow(Scalar const& a, Scalar const& b) {
+        return std::pow(_mm_cvtss_f32(a._value), _mm_cvtss_f32(b._value));
+    }
+
     float ToFloat() const {
         return _mm_cvtss_f32(_value);
     }
