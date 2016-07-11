@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
 #include "Color.h"
@@ -55,14 +56,14 @@ public:
         : _lights(lights, lights + NumLights)
         , _spheres(spheres, spheres + NumSpheres) {}
 
-    bool TraceColor(V const& start, V const& end, Color& color) const
+    bool TraceColor(V const& start, V const& end, Color& color, int hit_count = 4) const
     {
         TraceHit hit;
 
         if (Trace(start, end, hit)) {
             V outgoing = (start - hit.point).Normalize();
             V hitpoint = hit.point + hit.normal * 1e-3f;
-            Shade(hit.material, hitpoint, hit.normal, outgoing, color);
+            Shade(hit.material, hitpoint, hit.normal, outgoing, color, hit_count);
             return true;
         }
         return false;
@@ -85,7 +86,7 @@ private:
         return (mindist < 1.0f);
     }
 
-    void Shade(Material const& material, V const& origin, V const& normal, V const& outgoing, Color& color) const
+    void Shade(Material const& material, V const& origin, V const& normal, V const& outgoing, Color& color, int hit_count) const
     {
         color = {0.f, 0.f, 0.f, 0.f};
 
@@ -97,7 +98,15 @@ private:
             }
 
             //color += Phong(material, origin, normal, outgoing, light);
-            color += CookTorrance(material, origin, normal, outgoing, light);
+            color += CookTorrance(material, origin, normal, outgoing, light, hit_count);
+        }
+
+        if (hit_count > 0) {
+            //  Specular reflection
+            color += Reflect(material, origin, normal, outgoing, hit_count);
+
+            //  Diffuse reflection
+            //  ...
         }
     }
 
@@ -128,7 +137,25 @@ private:
         return diffuse_color + specular_color;
     }
 
-    Color CookTorrance(Material const& material, V const& origin, V const& normal, V const& outgoing, Light const& light) const
+    Color Reflect(Material const& material, V const& origin, V const& normal, V const& outgoing, int hit_count) const {
+        TraceHit hit;
+        Light l;
+
+        l.origin = origin;
+        l.intensity = 1.f;
+
+        V reflect = normal.Reflect(-outgoing);
+
+        if (Trace(origin, reflect * 1e1f, hit)) {
+            V hitpoint = hit.point + hit.normal * 1e-3f;
+            V new_outgoing = (origin - hit.point).Normalize();
+            Shade(hit.material, hitpoint, hit.normal, new_outgoing, l.color, hit_count - 1);
+            return CookTorrance(hit.material, hitpoint, hit.normal, new_outgoing, l, hit_count - 1);
+        }
+        return {0.f, 0.f, 0.f, 0.f};
+    }
+
+    Color CookTorrance(Material const& material, V const& origin, V const& normal, V const& outgoing, Light const& light, int hit_count) const
     {
         V light_direction = (light.origin - origin).Normalize();
         V half_direction = (light_direction + outgoing).Normalize();
@@ -231,7 +258,7 @@ private:
 
     template<typename T>
     T const& min3(T const& x, T const& y, T const& z) const {
-        return min(x, min(y, z));
+        return std::min(x, std::min(y, z));
     }
 
     std::vector<Light> _lights;
