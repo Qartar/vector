@@ -50,7 +50,7 @@ void Trace(char const* filename = nullptr) {
     spheres[1].material     = Material{Color{.05f, .02f, .2f, 1.f}, .02f, 1.3f};
 
     Frustum<M, V, S>    view(
-        V(0.f, 0.f, 0.f, 1.f),
+        V(.5f, .5f, .4f, 1.f),
         V(1.f, 0.f, 0.f, 0.f),
         V(0.f, 1.f, 0.f, 0.f),
         V(0.f, 0.f, 1.f, 0.f),
