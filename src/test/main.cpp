@@ -19,6 +19,7 @@ int main() {
 
     printf_s("Testing conformance...\n");
     testComparison();
+    testElements();
     testAlgebraic();
     testLength();
     testDotProduct();
@@ -29,6 +30,8 @@ int main() {
     SetProcessAffinityMask(GetCurrentProcess(), 1);
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
+    testVectorElemRead(values);
+    testVectorElemWrite(values);
     testVectorAdd(values);
     testVectorSub(values);
     testScalarMul(values);

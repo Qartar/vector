@@ -36,6 +36,8 @@ private:
     LARGE_INTEGER _accum;
 };
 
+void testVectorElemRead(std::vector<float> const& data);
+void testVectorElemWrite(std::vector<float> const& data);
 void testVectorAdd(std::vector<float> const& data);
 void testVectorSub(std::vector<float> const& data);
 void testScalarMul(std::vector<float> const& data);

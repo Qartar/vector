@@ -18,6 +18,14 @@ public:
     Vector(float X, float Y, float Z, float W)
         : x(X), y(Y), z(Z), w(W) {}
 
+    Scalar& operator[](size_t index) {
+        return (&x)[index];
+    }
+
+    Scalar const& operator[](size_t index) const {
+        return (&x)[index];
+    }
+
     bool operator==(Vector const& a) const {
         return (x == a.x && y == a.y && z == a.z && w == a.w);
     }
@@ -103,14 +111,6 @@ protected:
 
 protected:
     friend class Matrix;
-
-    Scalar& operator[](size_t index) {
-        return (&x)[index];
-    }
-
-    Scalar const& operator[](size_t index) const {
-        return (&x)[index];
-    }
 };
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
@@ -129,6 +129,14 @@ public:
         , y(m12, m22, m32, m42)
         , z(m13, m23, m33, m43)
         , w(m14, m24, m34, m44) {}
+
+    Vector& operator[](size_t index) {
+        return (&x)[index];
+    }
+
+    Vector const& operator[](size_t index) const {
+        return (&x)[index];
+    }
 
     bool operator==(Matrix const& a) const {
         return x == a.x && y == a.y && z == a.z && w == a.w;
@@ -178,14 +186,6 @@ public:
 
 protected:
     Vector x, y, z, w;
-
-    Vector& operator[](size_t index) {
-        return (&x)[index];
-    }
-
-    Vector const& operator[](size_t index) const {
-        return (&x)[index];
-    }
 };
 
 static_assert(alignof(Matrix) == alignof(__m128), "Bad alignment!");

@@ -115,6 +115,7 @@ private:
     __m128 _value;
 
 private:
+    friend class VectorScalar;
     friend class Vector;
     friend class Matrix;
 
@@ -122,11 +123,121 @@ private:
         : _value(value) {}
 };
 
+class VectorScalar {
+public:
+    bool operator==(Scalar const& s) const {
+        return s == *this;
+    }
+
+    bool operator!=(Scalar const& s) const {
+        return s != *this;
+    }
+
+    bool operator<(Scalar const& s) const {
+        return s > *this;
+    }
+
+    bool operator>(Scalar const& s) const {
+        return s < *this;
+    }
+
+    bool operator<=(Scalar const& s) const {
+        return s >= *this;
+    }
+
+    bool operator>=(Scalar const& s) const {
+        return s <= *this;
+    }
+
+    operator Scalar() const {
+        switch (_index) {
+            case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
+            case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
+            case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
+            case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
+            default: __assume(false);
+        }
+    }
+
+    void operator=(Scalar const& a) {
+        switch (_index) {
+            case 0: return Delegate<0>::op(_value, a._value);
+            case 1: return Delegate<1>::op(_value, a._value);
+            case 2: return Delegate<2>::op(_value, a._value);
+            case 3: return Delegate<3>::op(_value, a._value);
+            default: __assume(false);
+        }
+    }
+
+private:
+    friend class Vector;
+
+    VectorScalar(__m128& value, size_t index)
+        : _value(value)
+        , _index(index) {}
+
+    template<int> struct Delegate {};
+
+    template<> struct Delegate<0> {
+        static void op(__m128& v, __m128 const& s) {
+            //  s       s       x       y
+            auto r1 = _mm_movelh_ps(s, v);
+            //  s       y       z       w
+            v = _mm_shuffle_ps(r1, v, SHUFPS(0, 3, 2, 3));
+        }
+    };
+
+    template<> struct Delegate<1> {
+        static void op(__m128& v, __m128 const& s) {
+            //  s       s       x       y
+            auto r1 = _mm_movelh_ps(s, v);
+            //  x       s       z       w
+            v = _mm_shuffle_ps(r1, v, SHUFPS(2, 1, 2, 3));
+        }
+    };
+
+    template<> struct Delegate<2> {
+        static void op(__m128& v, __m128 const& s) {
+            //  z       w       s       s
+            auto r1 = _mm_movehl_ps(s, v);
+            //  x       y       s       w
+            v = _mm_shuffle_ps(v, r1, SHUFPS(0, 1, 2, 1));
+        }
+    };
+
+    template<> struct Delegate<3> {
+        static void op(__m128& v, __m128 const& s) {
+            //  z       w       s       s
+            auto r1 = _mm_movehl_ps(s, v);
+            //  x       y       z       s
+            v = _mm_shuffle_ps(v, r1, SHUFPS(0, 1, 0, 3));
+        }
+    };
+
+private:
+    __m128& _value;
+    size_t _index;
+};
+
 class Vector {
 public:
     Vector() {}
     Vector(float X, float Y, float Z, float W)
         : _value(_mm_set_ps(W, Z, Y, X)) {}
+
+    VectorScalar operator[](size_t index) {
+        return VectorScalar(_value, index);
+    }
+
+    Scalar operator[](size_t index) const {
+        switch (index) {
+            case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
+            case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
+            case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
+            case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
+            default: __assume(false);
+        }
+    }
 
     bool operator==(Vector const& a) const {
         return _mm_movemask_ps(_mm_cmpeq_ps(_value, a._value)) == 0xf;
@@ -252,6 +363,14 @@ public:
         , y(m12, m22, m32, m42)
         , z(m13, m23, m33, m43)
         , w(m14, m24, m34, m44) {}
+
+    Vector& operator[](size_t index) {
+        return (&x)[index];
+    }
+
+    Vector const& operator[](size_t index) const {
+        return (&x)[index];
+    }
 
     bool operator==(Matrix const& a) const {
         return x == a.x && y == a.y && z == a.z && w == a.w;

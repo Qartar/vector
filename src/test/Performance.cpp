@@ -9,6 +9,71 @@
 #include "trace/Trace.h"
 
 template<typename M, typename V, typename S>
+struct vectorElemReadT {
+    static constexpr const char* name = "vectorElemRead";
+    static constexpr const size_t size = 5;
+
+    struct Args {
+        V a;
+        size_t idx;
+    };
+
+    vectorElemReadT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii].a = { *v++, *v++, *v++, *v++ };
+            _input[ii].idx = (int)(*v++) % 4;
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()() {
+        S* out = _output.data();
+
+        for (auto const& in: _input) {
+            *out++ = in.a[in.idx];
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<S> _output;
+};
+
+template<typename M, typename V, typename S>
+struct vectorElemWriteT {
+    static constexpr const char* name = "vectorElemWrite";
+    static constexpr const size_t size = 6;
+
+    struct Args {
+        S a;
+        size_t idx;
+    };
+
+    vectorElemWriteT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        _output.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _output[ii] = { *v++, *v++, *v++, *v++ };
+            _input[ii].a = *v++;
+            _input[ii].idx = (int)(*v++) % 4;
+        }
+    }
+
+    void operator()() {
+        V* out = _output.data();
+
+        for (auto const& in: _input) {
+            (*out++)[in.idx] = in.a;
+        }
+    }
+
+    std::vector<Args> _input;
+    std::vector<V> _output;
+};
+
+template<typename M, typename V, typename S>
 struct vectorAddT {
     static constexpr const char* name = "vectorAdd";
     static constexpr const size_t size = 8;
@@ -652,6 +717,14 @@ void testPerformance(std::vector<float> const& data) {
              timing[0], timing[1], timing[2],
              1.0e2 * timing[0] / timing[1],
              1.0e2 * timing[0] / timing[2]);
+}
+
+void testVectorElemRead(std::vector<float> const& data) {
+    return testPerformance<vectorElemReadT>(data);
+}
+
+void testVectorElemWrite(std::vector<float> const& data) {
+    return testPerformance<vectorElemWriteT>(data);
 }
 
 void testVectorAdd(std::vector<float> const& data) {

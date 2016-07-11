@@ -30,6 +30,50 @@ struct testComparisonT {
         return true;
     }
 };
+template<typename M, typename V, typename S>
+struct testElementsT {
+    static constexpr const char* name = "testElements";
+
+    bool operator()() const {
+        V a(1.0f, 2.0f, 3.0f, 4.0f);
+        V b(1.0f, 1.0f, 2.0f, 3.0f);
+
+        if (a[0] != S(1.0f)) {
+            return false;
+        }
+        if (a[1] != S(2.0f)) {
+            return false;
+        }
+        if (a[2] != S(3.0f)) {
+            return false;
+        }
+        if (a[3] != S(4.0f)) {
+            return false;
+        }
+
+        b[0] = -1.0f;
+        if (b != V(-1.0f, 1.0f, 2.0f, 3.0f)) {
+            return false;
+        }
+
+        b[1] = -2.0f;
+        if (b != V(-1.0f, -2.0f, 2.0f, 3.0f)) {
+            return false;
+        }
+
+        b[2] = -3.0f;
+        if (b != V(-1.0f, -2.0f, -3.0f, 3.0f)) {
+            return false;
+        }
+
+        b[3] = -4.0f;
+        if (b != V(-1.0f, -2.0f, -3.0f, -4.0f)) {
+            return false;
+        }
+
+        return true;
+    }
+};
 
 template<typename M, typename V, typename S>
 struct testAlgebraicT {
@@ -281,6 +325,10 @@ bool testFunc() {
 
 bool testComparison() {
     return testFunc<testComparisonT>();
+}
+
+bool testElements() {
+    return testFunc<testElementsT>();
 }
 
 bool testAlgebraic() {
