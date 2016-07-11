@@ -6,6 +6,8 @@
 
 #include "math/Intersect.h"
 
+#include "trace/Trace.h"
+
 template<typename M, typename V, typename S>
 struct vectorAddT {
     static constexpr const char* name = "vectorAdd";
@@ -590,6 +592,17 @@ struct hitCapsuleT {
     std::vector<Hit<V, S>> _output;
 };
 
+template<typename M, typename V, typename S>
+struct traceSceneT {
+    static constexpr const char* name = "traceScene";
+
+    traceSceneT(std::vector<float> const&) {}
+
+    void operator()() {
+        Trace<M, V, S>(1024, 1024);
+    }
+};
+
 template<typename Func>
 double testPerformanceSingle(Func& fn) {
     Timer t;
@@ -711,4 +724,8 @@ void testHitSphere(std::vector<float> const& data) {
 
 void testHitCapsule(std::vector<float> const& data) {
     return testPerformance<hitCapsuleT>(data);
+}
+
+void testTraceScene(std::vector<float> const& data) {
+    return testPerformance<traceSceneT>(data);
 }

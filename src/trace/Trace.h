@@ -28,7 +28,7 @@ void TraceView(Frustum<M, V, S> const& view, Scene<M, V, S> const& scene, Image&
 }
 
 template<typename M, typename V, typename S>
-void Trace(char const* filename = nullptr) {
+void Trace(size_t width, size_t height, char const* filename = nullptr) {
     Light<M, V, S>          lights[2];
 
     lights[0].origin        = V(2.f, 0.f, 4.f, 1.f);
@@ -56,7 +56,7 @@ void Trace(char const* filename = nullptr) {
         V(0.f, 0.f, 1.f, 0.f),
         .1f, 8.f, 1.f, 1.f);
 
-    Image               image(256, 256);
+    Image               image(width, height);
     Scene<M, V, S>      scene(lights, spheres);
 
     TraceView(view, scene, image);

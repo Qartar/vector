@@ -6,9 +6,11 @@
 
 int main()
 {
-    Trace<default::Matrix, default::Vector, default::Scalar>("trace/default.bmp");
-    Trace<aligned::Matrix, aligned::Vector, aligned::Scalar>("trace/aligned.bmp");
-    Trace<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>("trace/intrinsic.bmp");
+    constexpr size_t kSize = 256;
+
+    Trace<default::Matrix, default::Vector, default::Scalar>(kSize, kSize, "trace/default.bmp");
+    Trace<aligned::Matrix, aligned::Vector, aligned::Scalar>(kSize, kSize, "trace/aligned.bmp");
+    Trace<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>(kSize, kSize, "trace/intrinsic.bmp");
 
     return 0;
 }

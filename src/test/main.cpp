@@ -47,6 +47,7 @@ int main() {
     testMatrixMatrix(values);
     testHitSphere(values);
     testHitCapsule(values);
+    testTraceScene(values);
 
     return 0;
 }
