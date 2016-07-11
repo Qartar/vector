@@ -43,11 +43,11 @@ void Trace(char const* filename = nullptr) {
 
     spheres[0].origin       = V(3.f, 0.f, 0.f, 1.f);
     spheres[0].radius       = .5f;
-    spheres[0].material     = Material{Color{.2f, .05f, .02f, 1.f}, .8f};
+    spheres[0].material     = Material{Color{.2f, .05f, .02f, 1.f}, .4f, 2.5f};
 
     spheres[1].origin       = V(6.f, 1.f, 1.f, 1.f);
     spheres[1].radius       = 1.5f;
-    spheres[1].material     = Material{Color{.05f, .02f, .2f, 1.f}, .1f};
+    spheres[1].material     = Material{Color{.05f, .02f, .2f, 1.f}, .02f, 1.3f};
 
     Frustum<M, V, S>    view(
         V(0.f, 0.f, 0.f, 1.f),
