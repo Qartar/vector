@@ -5,8 +5,16 @@ project(vector)
 ########################################
 # math
 
-add_library(math INTERFACE)
-target_include_directories(math INTERFACE src)
+add_library(math STATIC
+    src/math/Default.h
+    src/math/Aligned.h
+    src/math/Intrinsic.h
+    src/math/Intersect.h
+
+    src/math/Math.cpp
+)
+
+target_include_directories(math PUBLIC src)
 
 ########################################
 # trace
