@@ -4,8 +4,22 @@
 #include <smmintrin.h>
 #include <immintrin.h>
 
-//! dst[0->3] = { src0[x], src0[y], src1[z], src1[w] }
-#define SHUFPS(x, y, z, w)  ((x << 0) | (y << 2) | (z << 4) | (w << 6))
+////////////////////////////////////////////////////////////////////////////////
+/**
+ * Following the conventions used in Intel documentation, register values are
+ * written from most to least significant, i.e.
+ *
+ *             [127:96][95:64][63:32][31: 0]
+ *  V[127:0] = {     w,     z,     y,     x}
+ *
+ * Intel refers to the scalars at [127:96] and [95:64] as the 'upper elements'
+ * or 'high bits' and to the scalars at [63:32] and [31:0] as the 'lower
+ * elements' or 'low bits'.
+ */
+
+//! Immediate byte argument for _mm_shuffle_ps(src0, src1)
+//!     dst[127:0] = { src1[w], src1[z], src0[y], src0[x] }
+#define SHUFPS(w, z, y, x)  ((w << 6) | (z << 4) | (y << 2) | (x << 0))
 
 namespace intrinsic {
 
@@ -186,37 +200,37 @@ private:
 
     template<> struct Delegate<0> {
         static void op(__m128& v, __m128 const& s) {
-            //  s       s       x       y
+            //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
-            //  s       y       z       w
-            v = _mm_shuffle_ps(r1, v, SHUFPS(0, 3, 2, 3));
+            //  w       z       y       s
+            v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 3, 0));
         }
     };
 
     template<> struct Delegate<1> {
         static void op(__m128& v, __m128 const& s) {
-            //  s       s       x       y
+            //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
-            //  x       s       z       w
-            v = _mm_shuffle_ps(r1, v, SHUFPS(2, 1, 2, 3));
+            //  w       z       s       x
+            v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 1, 2));
         }
     };
 
     template<> struct Delegate<2> {
         static void op(__m128& v, __m128 const& s) {
-            //  z       w       s       s
+            //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
-            //  x       y       s       w
-            v = _mm_shuffle_ps(v, r1, SHUFPS(0, 1, 2, 1));
+            //  w       s       y       x
+            v = _mm_shuffle_ps(v, r1, SHUFPS(1, 2, 1, 0));
         }
     };
 
     template<> struct Delegate<3> {
         static void op(__m128& v, __m128 const& s) {
-            //  z       w       s       s
+            //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
-            //  x       y       z       s
-            v = _mm_shuffle_ps(v, r1, SHUFPS(0, 1, 0, 3));
+            //  s       z       y       x
+            v = _mm_shuffle_ps(v, r1, SHUFPS(3, 0, 1, 0));
         }
     };
 
@@ -308,20 +322,20 @@ public:
 
     //! Cross product in R3.
     Vector operator%(Vector const& a) const {
-        //  y2      y0      y1      y3
-        auto shuf1 = _mm_shuffle_ps(_value, _value, SHUFPS(2, 0, 1, 3));
-        //  y1      y2      y0      y3
-        auto shuf2 = _mm_shuffle_ps(_value, _value, SHUFPS(1, 2, 0, 3));
+        //  y3      y1      y0      y2
+        auto shuf1 = _mm_shuffle_ps(_value, _value, SHUFPS(3, 1, 0, 2));
+        //  y3      y0      y2      y1
+        auto shuf2 = _mm_shuffle_ps(_value, _value, SHUFPS(3, 0, 2, 1));
 
-        //  y2*z0   y0*z1   y1*z2   --
+        //  --      y1*z2   y0*z1   y2*z0
         auto prod1 = _mm_mul_ps(shuf1, a._value);
-        //  y1*z0   y2*z1   y0*z2   --
+        //  --      y0*z2   y2*z1   y1*z0
         auto prod2 = _mm_mul_ps(shuf2, a._value);
 
-        //  y1*z2   y2*z0   y0*z1   --
-        auto shuf3 = _mm_shuffle_ps(prod1, prod1, SHUFPS(2, 0, 1, 3));
-        //  y2*z1   y0*z2   y1*z0   --
-        auto shuf4 = _mm_shuffle_ps(prod2, prod2, SHUFPS(1, 2, 0, 3));
+        //  --      y0*z1   y2*z0   y1*z2
+        auto shuf3 = _mm_shuffle_ps(prod1, prod1, SHUFPS(3, 1, 0, 2));
+        //  --      y1*z0   y0*z2   y2*z1
+        auto shuf4 = _mm_shuffle_ps(prod2, prod2, SHUFPS(3, 0, 2, 1));
 
         return _mm_sub_ps(shuf3, shuf4);
     }
