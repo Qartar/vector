@@ -41,6 +41,15 @@ add_executable(trace_app
 target_link_libraries(trace_app trace)
 
 ########################################
+# light_app
+
+add_executable(light_app
+    src/trace/Light.cpp
+)
+
+target_link_libraries(light_app trace)
+
+########################################
 # vector
 
 add_executable(vector
