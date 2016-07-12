@@ -4,22 +4,9 @@
 #include <vector>
 
 #include "Color.h"
+#include "Light.h"
 
 #include "math/Intersect.h"
-
-template<typename M, typename V, typename S>
-struct Material {
-    Color<M, V, S> color;
-    float roughness;
-    float refractive_index;
-};
-
-template<typename M, typename V, typename S>
-struct Light {
-    V origin;
-    Color<M, V, S> color;
-    S intensity;
-};
 
 template<typename M, typename V, typename S>
 struct Object {
@@ -37,7 +24,7 @@ struct TraceSphere : Sphere<V, S> {
     Material<M, V, S> material;
 };
 
-template<typename M, typename V, typename S>
+template<typename M, typename V, typename S, typename L = L_BlinnPhong>
 class Scene {
 public:
     using Color = Color<M, V, S>;
@@ -89,6 +76,24 @@ private:
         return (mindist < 1.0f);
     }
 
+    Color Reflect(Material const& material, V const& origin, V const& normal, V const& outgoing, int hit_count) const {
+        TraceHit hit;
+        Light light;
+
+        light.origin = origin;
+        light.intensity = 1.f;
+
+        V reflect = normal.Reflect(-outgoing);
+
+        if (Trace(origin, reflect * 1e1f, hit)) {
+            V hitpoint = hit.point + hit.normal * 1e-3f;
+            V new_outgoing = (origin - hit.point).Normalize();
+            Shade(hit.material, hitpoint, hit.normal, new_outgoing, light.color, hit_count - 1);
+            return ShadeLight(hit.material, hit.normal, light, hitpoint, new_outgoing);
+        }
+        return {0.f, 0.f, 0.f, 0.f};
+    }
+
     void Shade(Material const& material, V const& origin, V const& normal, V const& outgoing, Color& color, int hit_count) const
     {
         color = {0.f, 0.f, 0.f, 0.f};
@@ -100,8 +105,7 @@ private:
                 continue;
             }
 
-            //color += Phong(material, origin, normal, outgoing, light);
-            color += CookTorrance(material, origin, normal, outgoing, light, hit_count);
+            color += ShadeLight(material, normal, light, origin, outgoing);
         }
 
         if (hit_count > 0) {
@@ -113,155 +117,26 @@ private:
         }
     }
 
-    Color Phong(Material const& material, V const& origin, V const& normal, V const& outgoing, Light const& light) const
+    Color ShadeLight(Material const& material, V const& normal, Light const& light, V const& point, V const& vector) const
     {
-        V light_direction = (light.origin - origin).Normalize();
-        V half_direction = (light_direction + outgoing).Normalize();
+        V n = normal;
+        V l = light.origin - point;
+        V v = vector;
 
-        S diffuse_frac = light_direction * normal;
-
-        if (diffuse_frac < 0.f) {
+        if (l * n <= 0.f) {
             return {0.f, 0.f, 0.f, 0.f};
         }
 
-        Color diffuse_color = material.color * light.color * diffuse_frac;
+        l = l.Normalize();
+        v = v.Normalize();
+        V h = (l + v).Normalize();
 
-        S specular_frac = half_direction * normal;
+        S K  = l * n * light.intensity / (light.origin - point).LengthSqr();
+        S Kd = L::Kd(material, n, l, v, h);
+        S Ks = L::Ks(material, n, l, v, h);
 
-        Color specular_color = {0.f, 0.f, 0.f, 0.f};
-
-        if (specular_frac > 0.f) {
-            float msqr = material.roughness * material.roughness;
-            float k = 1.f / (kPi * msqr);
-            float p = 2.f / msqr - 2.f;
-            specular_color = light.color * k * pow(specular_frac, p) * diffuse_frac;
-        }
-
-        return diffuse_color + specular_color;
-    }
-
-    Color Reflect(Material const& material, V const& origin, V const& normal, V const& outgoing, int hit_count) const {
-        TraceHit hit;
-        Light l;
-
-        l.origin = origin;
-        l.intensity = 1.f;
-
-        V reflect = normal.Reflect(-outgoing);
-
-        if (Trace(origin, reflect * 1e1f, hit)) {
-            V hitpoint = hit.point + hit.normal * 1e-3f;
-            V new_outgoing = (origin - hit.point).Normalize();
-            Shade(hit.material, hitpoint, hit.normal, new_outgoing, l.color, hit_count - 1);
-            return CookTorrance(hit.material, hitpoint, hit.normal, new_outgoing, l, hit_count - 1);
-        }
-        return {0.f, 0.f, 0.f, 0.f};
-    }
-
-    Color CookTorrance(Material const& material, V const& origin, V const& normal, V const& outgoing, Light const& light, int hit_count) const
-    {
-        V light_direction = (light.origin - origin).Normalize();
-        V half_direction = (light_direction + outgoing).Normalize();
-
-        //  Vector coefficients
-        S VdotN = outgoing * normal;
-        S LdotN = light_direction * normal;
-        S HdotN = half_direction * normal;
-        S VdotH = outgoing * half_direction;
-
-        if (LdotN < 0.f) {
-            return {.0f, .0f, .0f, .0f};
-        }
-
-#if 0
-        return material.color * light.color * (1.f - F_Schlick(material, LdotN));
-#elif 0
-        //return light.color * G_GGX(material, VdotN) * G_GGX(material, LdotN);
-        return light.color * G_CookTorrance(HdotN, VdotN, LdotN, VdotH);
-#else
-        //  Microfacet distribution
-        //S D = D_Beckmann(material, HdotN);
-        S D = D_GGX(material, HdotN);
-
-        //  Fresnel coefficient
-        S F = F_Schlick(material, VdotN);
-
-        //  Geometric attenuation
-        //S G = G_CookTorrance(HdotN, VdotN, LdotN, VdotH);
-        //S G = G_GGX(material, VdotN) * G_GGX(material, LdotN);
-        S G = G_Kelemen(LdotN, VdotN, VdotH);
-
-        //  Diffuse coefficient
-        S Kd = 1.f - F_Schlick(material, LdotN);
-
-        //  Specular coefficient
-        S Ks = D * F * G / (4.f * VdotN);
-
-        return material.color * light.color * Kd * LdotN
-                              + light.color * Ks;
-#endif
-    }
-
-    S D_BlinnPhong(Material const& material, S const& HdotN) const {
-        S msqr = material.roughness * material.roughness;
-        return HdotN * pow(2.f / msqr - 2.f) / (kPi * msqr);
-    }
-
-    S D_Beckmann(Material const& material, S const& HdotN) const {
-        S msqr = material.roughness * material.roughness;
-        S bsqr = HdotN * HdotN;
-
-        S num = exp((bsqr - 1.f) / (msqr * bsqr));
-        S den = kPi * msqr * bsqr * bsqr;
-
-        return num / den;
-    }
-
-    S D_GGX(Material const& material, S const& HdotN) const {
-        S msqr = material.roughness * material.roughness;
-        S d = HdotN * HdotN * (msqr - 1.f) + 1.f;
-
-        return msqr / (kPi * d * d);
-    }
-
-    S F_Schlick(Material const& material, S const& VdotN) const {
-        S n = (1.f - material.refractive_index) / (1.f + material.refractive_index);
-        S R0 = n * n;
-        S k = (1.f - VdotN);
-        S k2 = k * k;
-        S k5 = k2 * k2 * k;
-
-        return R0 + (1.f - R0) * k5;
-    }
-
-    S G_Implicit(S const& NdotL, S const& NdotV) const {
-        return NdotL * NdotV;
-    }
-
-    S G_Neumann(S const& NdotL, S const& NdotV) const {
-        return NdotL * NdotV / max(NdotL, NdotV);
-    }
-
-    S G_CookTorrance(S const& NdotH, S const& NdotV, S const& NdotL, S const& VdotH) const {
-        return min3(S(1.f),
-                    2.f * NdotH * NdotV / VdotH,
-                    2.f * NdotH * NdotL / VdotH);
-    }
-
-    S G_Kelemen(S const& NdotL, S const& NdotV, S const& VdotH) const {
-        return NdotL * NdotV / (VdotH * VdotH);
-    }
-
-    S G_GGX(Material const& material, S const& NdotV) const {
-        S msqr = material.roughness * material.roughness;
-        return 2.f * NdotV / (NdotV + sqrt(msqr + (1.f - msqr) * NdotV * NdotV));
-    }
-
-    constexpr static const float kPi = 3.1415926535897932f;
-
-    template<typename T>
-    T const& min3(T const& x, T const& y, T const& z) const {
-        return std::min(x, std::min(y, z));
+        return K * ( Kd * light.color * material.diffuse_color
+                   + Ks * light.color * material.specular_color);
     }
 
     std::vector<Light> _lights;

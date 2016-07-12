@@ -32,6 +32,10 @@ public:
         return _value * s;
     }
 
+    friend Color operator*(S const& s, Color const& c) {
+        return c._value * s;
+    }
+
 private:
     V _value;
 

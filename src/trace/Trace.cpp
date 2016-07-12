@@ -6,7 +6,7 @@
 
 int main()
 {
-    constexpr size_t kSize = 256;
+    constexpr size_t kSize = 1024;
 
     Trace<default::Matrix, default::Vector, default::Scalar>(kSize, kSize, "trace/default.bmp");
     Trace<aligned::Matrix, aligned::Vector, aligned::Scalar>(kSize, kSize, "trace/aligned.bmp");
