@@ -211,6 +211,23 @@ public:
     }
 };
 
+//------------------------------------------------------------------------------
+class G_SmithHeightCorrelated {
+public:
+    template<typename M, typename V, typename S>
+    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+        S msqr = mtr.roughness * mtr.roughness;
+        S NdotV = n * v;
+        S NdotL = n * l;
+        S NdotV2 = NdotV * NdotV;
+        S NdotL2 = NdotL * NdotL;
+
+        S lambda_v = .5f * (sqrt(msqr * (1.f - NdotL2) / NdotL2 + 1.f) - 1.f);
+        S lambda_l = .5f * (sqrt(msqr * (1.f - NdotV2) / NdotV2 + 1.f) - 1.f);
+        return 1.f / (1.f + lambda_v + lambda_l);
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * Diffuse coefficient functions

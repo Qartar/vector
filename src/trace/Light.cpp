@@ -30,6 +30,10 @@ void test_models() {
     Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_BlinnPhong, F_Schlick, G_GGX>>>(Size, Size, "light/disney-blinnphong-schlick-ggx.bmp");
     Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_Beckmann, F_Schlick, G_GGX>>>(Size, Size, "light/disney-beckmann-schlick-ggx.bmp");
     Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_GGX, F_Schlick, G_GGX>>>(Size, Size, "light/disney-ggx-schlick-ggx.bmp");
+
+    Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_BlinnPhong, F_Schlick, G_SmithHeightCorrelated>>>(Size, Size, "light/disney-blinnphong-schlick-smith_ggx_correlated.bmp");
+    Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_Beckmann, F_Schlick, G_SmithHeightCorrelated>>>(Size, Size, "light/disney-beckmann-schlick-smith_ggx_correlated.bmp");
+    Trace<M, V, S, L_Separable<Kd_Disney, Ks_CookTorrance<D_GGX, F_Schlick, G_SmithHeightCorrelated>>>(Size, Size, "light/disney-ggx-schlick-smith_ggx_correlated.bmp");
 }
 
 int main()
