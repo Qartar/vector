@@ -46,20 +46,29 @@ public:
         : _lights(lights, lights + NumLights)
         , _spheres(spheres, spheres + NumSpheres) {}
 
+    //! Calculate the illuminated surface color at the nearest intersection of
+    //! an object in the scene with the ray from `start` to `end`.
     bool TraceColor(V const& start, V const& end, Color& color, int hit_count = 4) const
     {
         TraceHit hit;
 
         if (Trace(start, end, hit)) {
-            V outgoing = (start - hit.point).Normalize();
-            V hitpoint = hit.point + hit.normal * 1e-3f;
-            Shade(hit.material, hitpoint, hit.normal, outgoing, color, hit_count);
+            V view = (start - hit.point).Normalize();
+            V hitpoint = hit.point + hit.normal * kEpsilon;
+            color = Shade(hit.material, hitpoint, hit.normal, view, hit_count);
             return true;
         }
         return false;
     }
 
-private:
+protected:
+    static constexpr float kEpsilon = 1e-5f;
+
+    std::vector<Light> _lights;
+    std::vector<TraceSphere> _spheres;
+
+protected:
+    //! Find the nearest surface intersection between start and end.
     bool Trace(V const& start, V const& end, TraceHit& hit) const
     {
         S mindist = 1.0f;
@@ -76,28 +85,41 @@ private:
         return (mindist < 1.0f);
     }
 
-    Color Reflect(Material const& material, V const& origin, V const& normal, V const& outgoing, int hit_count) const {
+    //! Calculate the indirect illumination at a point from the given direction.
+    Color ShadeIndirect(Material const& material, V const& origin, V const& normal, V const& view, V const& direction, int hit_count) const
+    {
         TraceHit hit;
-        Light light;
 
-        light.origin = origin;
-        light.intensity = 1.f;
+        if (Trace(origin + normal * kEpsilon, origin + direction * 1e3f, hit)) {
+            // Determine the lit color of the object at the intersection point
+            // from the perspective of the original surface.
+            V hitpoint = hit.point + hit.normal * kEpsilon;
+            V new_view = (origin - hit.point).Normalize();
 
-        V reflect = normal.Reflect(-outgoing);
+            Color hitcolor = Shade(hit.material, hitpoint, hit.normal, new_view, hit_count - 1);
 
-        if (Trace(origin, reflect * 1e1f, hit)) {
-            V hitpoint = hit.point + hit.normal * 1e-3f;
-            V new_outgoing = (origin - hit.point).Normalize();
-            Shade(hit.material, hitpoint, hit.normal, new_outgoing, light.color, hit_count - 1);
-            return ShadeLight(hit.material, hit.normal, light, hitpoint, new_outgoing);
+            // Use the equivalence of direct and indirect illumination to add
+            // the indirect contribution of the intersected surface to the
+            // lighting of the original surface.
+            Light light = {
+                hitpoint,   //  origin
+                hitcolor,   //  color
+                1.f,        //  intensity
+            };
+
+            return ShadeLight(material, normal, light, origin, view);
         }
+
+        // No intersection.
         return {0.f, 0.f, 0.f, 0.f};
     }
 
-    void Shade(Material const& material, V const& origin, V const& normal, V const& outgoing, Color& color, int hit_count) const
+    //! Calculate the direct and indirect illumination at a point from the entire scene.
+    Color Shade(Material const& material, V const& origin, V const& normal, V const& view, int hit_count) const
     {
-        color = {0.f, 0.f, 0.f, 0.f};
+        Color color = {0.f, 0.f, 0.f, 0.f};
 
+        // Add the direct illumination of each light in the scene.
         for (auto const& light: _lights) {
             TraceHit hit;
 
@@ -105,18 +127,22 @@ private:
                 continue;
             }
 
-            color += ShadeLight(material, normal, light, origin, outgoing);
+            color += ShadeLight(material, normal, light, origin, view);
         }
 
+        // Add indirect illumination from other surfaces in the scene.
         if (hit_count > 0) {
             //  Specular reflection
-            color += Reflect(material, origin, normal, outgoing, hit_count);
+            color += ShadeIndirect(material, origin, normal, view, normal.Reflect(-view), hit_count);
 
             //  Diffuse reflection
             //  ...
         }
+
+        return color;
     }
 
+    //! Calculate the direct illumination at a point from a single light source.
     Color ShadeLight(Material const& material, V const& normal, Light const& light, V const& point, V const& vector) const
     {
         V n = normal;
@@ -138,7 +164,4 @@ private:
         return K * ( Kd * light.color * material.diffuse_color
                    + Ks * light.color * material.specular_color);
     }
-
-    std::vector<Light> _lights;
-    std::vector<TraceSphere> _spheres;
 };

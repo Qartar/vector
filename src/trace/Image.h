@@ -58,6 +58,7 @@ public:
     }
 
     bool Save(char const* filename) const {
+        printf_s("saving %s...", filename);
         std::vector<uint8_t> data(_width * _height * 3);
         for (size_t ii = 0; ii < _height; ++ii) {
             for (size_t jj = 0; jj < _width; ++jj) {
@@ -67,7 +68,9 @@ public:
             }
         }
 
-        return WriteBitmapBGR(filename, _width, _height, data);
+        auto result =  WriteBitmapBGR(filename, _width, _height, data);
+        printf_s("%s\n", result ? "ok" : "failed");
+        return result;
     }
 
 private:
