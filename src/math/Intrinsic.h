@@ -25,6 +25,12 @@
 
 namespace intrinsic {
 
+// Forward declarations
+class Scalar;
+class VectorScalar;
+class Vector;
+class Matrix;
+
 #if !_HAS_SSE
 #   error Intrinsics implementation requires at least SSE instruction set!
 #endif
@@ -138,9 +144,9 @@ private:
     __m128 _value;
 
 private:
-    friend class VectorScalar;
-    friend class Vector;
-    friend class Matrix;
+    friend VectorScalar;
+    friend Vector;
+    friend Matrix;
 
     Scalar(__m128 const& value)
         : _value(value) {}
@@ -196,7 +202,7 @@ public:
     }
 
 private:
-    friend class Vector;
+    friend Vector;
 
     VectorScalar(__m128& value, size_t index)
         : _value(value)
@@ -380,7 +386,7 @@ private:
     __m128 _value;
 
 private:
-    friend class Matrix;
+    friend Matrix;
 
     Vector(__m128 const& value)
         : _value(value) {}
