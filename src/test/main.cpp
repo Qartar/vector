@@ -1,6 +1,8 @@
 #include "Conformance.h"
 #include "Performance.h"
 
+#include <immintrin.h>
+
 #include <random>
 
 int main() {

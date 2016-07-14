@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.0)
 
 project(vector)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+include(Features)
+SetPlatformFeatures()
+
 ########################################
 # math
 
@@ -12,9 +17,11 @@ add_library(math STATIC
     src/math/Intersect.h
 
     src/math/Math.cpp
+
+    src/platform/Features.h
 )
 
-target_include_directories(math PUBLIC src)
+target_include_directories(math PUBLIC src src/platform)
 
 ########################################
 # trace

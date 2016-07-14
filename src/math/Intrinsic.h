@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Features.h"
+
 #include <xmmintrin.h>
 #include <smmintrin.h>
 #include <immintrin.h>
@@ -22,6 +24,10 @@
 #define SHUFPS(w, z, y, x)  ((w << 6) | (z << 4) | (y << 2) | (x << 0))
 
 namespace intrinsic {
+
+#if !_HAS_SSE
+#   error Intrinsics implementation requires at least SSE instruction set!
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -295,29 +301,29 @@ public:
     }
 
     Scalar Length() const {
-        return _mm_sqrt_ps(_mm_dp_ps(_value, _value, 0xff));
+        return _mm_sqrt_ps(_vec_dp_ps(_value, _value));
     }
 
     Scalar LengthFast() const {
-        auto lsqr = _mm_dp_ps(_value, _value, 0xff);
+        auto lsqr = _vec_dp_ps(_value, _value);
         return _mm_mul_ps(lsqr, _mm_rsqrt_ss(lsqr));
     }
 
     Scalar LengthSqr() const {
-        return _mm_dp_ps(_value, _value, 0xff);
+        return _vec_dp_ps(_value, _value);
     }
 
     Vector Normalize() const {
-        return _mm_div_ps(_value, _mm_sqrt_ps(_mm_dp_ps(_value, _value, 0xff)));
+        return _mm_div_ps(_value, _mm_sqrt_ps(_vec_dp_ps(_value, _value)));
     }
 
     Vector NormalizeFast() const {
-        return _mm_mul_ps(_value, _mm_rsqrt_ps(_mm_dp_ps(_value, _value, 0xff)));
+        return _mm_mul_ps(_value, _mm_rsqrt_ps(_vec_dp_ps(_value, _value)));
     }
 
     //! Dot product in R4.
     Scalar operator*(Vector const& a) const {
-        return _mm_dp_ps(_value, a._value, 0xff);
+        return _vec_dp_ps(_value, a._value);
     }
 
     //! Cross product in R3.
@@ -342,8 +348,8 @@ public:
 
     //! Return the projection of `a` onto this vector.
     Vector Project(Vector const& a) const {
-        auto lsqr = _mm_dp_ps(_value, _value, 0xff);
-        auto dota = _mm_dp_ps(_value, a._value, 0xff);
+        auto lsqr = _vec_dp_ps(_value, _value);
+        auto dota = _vec_dp_ps(_value, a._value);
         return _mm_mul_ps(_value, _mm_div_ps(dota, lsqr));
     }
 
@@ -355,9 +361,14 @@ public:
 
     //! Return the reflection of `a` onto this vector.
     Vector Reflect(Vector const& a) const {
-        auto scale = _mm_set_ps1(-2.0f);
         auto proj = Project(a)._value;
+#if _HAS_FMA
+        auto scale = _mm_set_ps1(-2.0f);
         return _mm_fmadd_ps(proj, scale, a._value);
+#else
+        auto r1 = _mm_mul_ps(_mm_set_ps1(2.0f, proj));
+        return _mm_sub_ps(a._value, r1);
+#endif
     }
 
     //! Return the component-wise product with `a`.
@@ -373,6 +384,32 @@ private:
 
     Vector(__m128 const& value)
         : _value(value) {}
+
+    //! Dot product of `a` and `b`. Returns the scalar value broadcasted to each
+    //! register element. Multiple implementations based on platform features.
+    static __m128 _vec_dp_ps(__m128 a, __m128 b) {
+#if _HAS_SSE4_1
+        return _mm_dp_ps(a, b, 0xff);
+#elif _HAS_SSE3
+        //  w       z       y       x
+        auto r1 = _mm_mul_ps(a, b);
+        //  z+w     x+y     z+w     x+y
+        auto r2 = _mm_hadd_ps(r1, r1);
+
+        return _mm_hadd_ps(r2, r2);
+#else
+        //  w       z       y       x
+        auto r1 = _mm_mul_ps(a, b);
+        //  z       y       x       w
+        auto r2 = _mm_shuffle_ps(r1, r1, SHUFPS(2, 1, 0, 3));
+        //  z+w     y+z     x+y     w+x
+        auto r3 = _mm_add_ps(r1, r2);
+        //  x+y     w+x     z+w     y+z
+        auto r4 = _mm_shuffle_ps(r3, r3, SHUFPS(1, 0, 3, 2));
+
+        return _mm_add_ps(r3, r4);
+#endif
+    }
 };
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
