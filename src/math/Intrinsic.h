@@ -2,6 +2,8 @@
 
 #include "Features.h"
 
+#include <cassert>
+
 #include <xmmintrin.h>
 #include <smmintrin.h>
 #include <immintrin.h>
@@ -149,7 +151,17 @@ private:
     friend Matrix;
 
     Scalar(__m128 const& value)
-        : _value(value) {}
+        : _value(value)
+    {
+#if defined(_DEBUG)
+        // Verify that each element of the register contains the same value.
+        auto r1 = _mm_mul_ps(value, _mm_set_ps1(4.f));
+        auto r2 = _mm_hadd_ps(value, value);
+        auto r3 = _mm_hadd_ps(r2, r2);
+        auto r4 = _mm_cmpeq_ps(r1, r3);
+        assert(_mm_movemask_ps(r4) == 0xf && "Invalid scalar value!");
+#endif
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +324,7 @@ public:
 
     Scalar LengthFast() const {
         auto lsqr = _vec_dp_ps(_value, _value);
-        return _mm_mul_ps(lsqr, _mm_rsqrt_ss(lsqr));
+        return _mm_mul_ps(lsqr, _mm_rsqrt_ps(lsqr));
     }
 
     Scalar LengthSqr() const {

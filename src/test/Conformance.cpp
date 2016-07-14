@@ -128,6 +128,12 @@ struct testLengthT {
             return false;
         }
 
+        S lerr = a.Length() / a.LengthFast();
+        // Maximum relative error of rsqrtps is less than 1.5*2^-12
+        if (1.0f - 3e4f > lerr || lerr > 1.0f + 3e-4f) {
+            return false;
+        }
+
         S asqr = a.Normalize().LengthSqr();
         if (1.0f - 1e-6f > asqr || asqr > 1.0f + 1e-6f) {
             return false;
