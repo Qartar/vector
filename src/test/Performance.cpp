@@ -1,7 +1,6 @@
 #include "Performance.h"
 
 #include "math/Default.h"
-#include "math/Aligned.h"
 #include "math/Intrinsic.h"
 
 #include "math/Intersect.h"
@@ -680,43 +679,36 @@ double testPerformanceSingle(Func& fn) {
 
 template<template<typename, typename, typename> typename Func, size_t kLoopCount = 16>
 void testPerformance(std::vector<float> const& data) {
-    double loop_timing[3][kLoopCount];
-    double timing[3];
+    double loop_timing[2][kLoopCount];
+    double timing[2];
 
     Func<default::Matrix, default::Vector, default::Scalar> fn0(data);
-    Func<aligned::Matrix, aligned::Vector, aligned::Scalar> fn1(data);
-    Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar> fn2(data);
+    Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar> fn1(data);
 
     // Warm-up passes
     for (size_t ii = 0; ii < 4; ++ii) {
         testPerformanceSingle(fn0);
         testPerformanceSingle(fn1);
-        testPerformanceSingle(fn2);
     }
 
     // Measured passes
     for (size_t ii = 0; ii < kLoopCount; ++ii) {
         loop_timing[0][ii] = testPerformanceSingle(fn0);
         loop_timing[1][ii] = testPerformanceSingle(fn1);
-        loop_timing[2][ii] = testPerformanceSingle(fn2);
     }
 
     // Sort passes
     std::sort(&loop_timing[0][0], &loop_timing[0][kLoopCount]);
     std::sort(&loop_timing[1][0], &loop_timing[1][kLoopCount]);
-    std::sort(&loop_timing[2][0], &loop_timing[2][kLoopCount]);
 
     // Select median
     timing[0] = loop_timing[0][kLoopCount/2];
     timing[1] = loop_timing[1][kLoopCount/2];
-    timing[2] = loop_timing[2][kLoopCount/2];
 
     // Print results
-    printf_s("  %-24s %12.4f \xc2\xb5s %12.4f \xc2\xb5s %12.4f \xc2\xb5s %7.2f%% %7.2f%%\n",
+    printf_s("  %-24s %12.4f \xc2\xb5s %12.4f \xc2\xb5s %7.2f%%\n",
              Func<default::Matrix, default::Vector, default::Scalar>::name,
-             timing[0], timing[1], timing[2],
-             1.0e2 * timing[0] / timing[1],
-             1.0e2 * timing[0] / timing[2]);
+             timing[0], timing[1], 1.0e2 * timing[0] / timing[1]);
 }
 
 void testVectorElemRead(std::vector<float> const& data) {

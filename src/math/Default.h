@@ -17,7 +17,7 @@ using std::sqrt;
 ////////////////////////////////////////////////////////////////////////////////
 /**
  */
-class Vector {
+class alignas(16) Vector {
 public:
     Vector() {}
     Vector(float X, float Y, float Z, float W)
@@ -126,7 +126,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 /**
  */
-class Matrix {
+class alignas(16) Matrix {
 public:
     Matrix() {}
     //! Construct with column vectors

@@ -12,7 +12,6 @@ SetPlatformFeatures()
 
 add_library(math STATIC
     src/math/Default.h
-    src/math/Aligned.h
     src/math/Intrinsic.h
     src/math/Intersect.h
 

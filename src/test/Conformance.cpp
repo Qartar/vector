@@ -1,7 +1,6 @@
 #include "Conformance.h"
 
 #include "math/Default.h"
-#include "math/Aligned.h"
 #include "math/Intrinsic.h"
 
 #include <cstdio>
@@ -316,17 +315,15 @@ bool testFunc() {
     };
 
     bool b0 = Func<default::Matrix, default::Vector, default::Scalar>()();
-    bool b1 = Func<aligned::Matrix, aligned::Vector, aligned::Scalar>()();
-    bool b2 = Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()();
+    bool b1 = Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()();
 
     // Print results
-    printf_s("  %-24s %-15s %-15s %-15s\n",
+    printf_s("  %-24s %-15s %-15s\n",
              Func<default::Matrix, default::Vector, default::Scalar>::name,
              result_strings[b0],
-             result_strings[b1],
-             result_strings[b2]);
+             result_strings[b1]);
 
-    return b0 && b1 && b2;
+    return b0 && b1;
 }
 
 bool testComparison() {
