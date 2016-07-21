@@ -71,28 +71,25 @@ bool hitCapsule(Ray<V, S> const& ray,
     V rayVec = ray.end - ray.start;
     V capsuleVec = capsule.end - capsule.start;
 
-    V splitPlane = rayVec % capsuleVec;
+    V projVec = capsuleVec.Reject(rayVec);
+    V capsuleOffset = capsuleVec.Reject(ray.start - capsule.start);
 
-    S splitNum = splitPlane * (ray.start - capsule.start);
-    S splitDen = splitPlane * splitPlane;
+    S A = projVec * projVec;
+    S B = 2.0f * projVec * capsuleOffset;
+    S C = capsuleOffset * capsuleOffset - capsule.radius * capsule.radius;
 
-    S Dsqr = splitNum * splitNum / splitDen;
-    S Rsqr = capsule.radius * capsule.radius;
-    if (Dsqr > Rsqr) {
+    S Dsqr = B * B - 4.0f * A * C;
+
+    if (Dsqr < 0.0f) {
         return false;
     }
 
-    V hitPlane = splitPlane % capsuleVec;
+    S D = sqrt(Dsqr);
 
-    S hitNum = hitPlane * (capsule.start - ray.start);
-    S hitDen = hitPlane * rayVec;
+    S t0 = 0.5f * (-B - D) / A;
+    S t1 = 0.5f * (-B + D) / A;
 
-    if (abs(hitDen) == 0.0f) {
-        return false;
-    }
-
-    S H = sqrt(Rsqr - Dsqr);
-    S t = (hitNum - H) / hitDen;
+    S t = t0 >= 0.0f ? t0 : t1;
     V hitPoint = ray.start + rayVec * t;
 
     if (capsuleVec * (hitPoint - capsule.end) > 0.0f) {
@@ -103,11 +100,9 @@ bool hitCapsule(Ray<V, S> const& ray,
         return false;
     }
 
-    V projected = capsuleVec * hitPoint * capsuleVec / (capsuleVec * capsuleVec);
-
     hit.t = t;
     hit.point = hitPoint;
-    hit.normal = (hitPoint - projected).Normalize();
-
+    hit.normal = t0 >= 0.0f ? capsuleVec.Reject(hitPoint - capsule.start).Normalize()
+                            : capsuleVec.Reject(capsule.start - hitPoint).Normalize();
     return true;
 }
