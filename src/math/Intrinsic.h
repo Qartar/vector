@@ -37,6 +37,12 @@ class Matrix;
 #   error Intrinsics implementation requires at least SSE instruction set!
 #endif
 
+#if defined(_WIN64)
+#   define VECTORCALL __vectorcall
+#else
+#   define VECTORCALL
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 /**
  */
@@ -50,95 +56,95 @@ public:
         return _mm_cvtss_f32(_value);
     }
 
-    bool operator==(Scalar const& a) const {
+    bool VECTORCALL operator==(Scalar const& a) const {
         return _mm_comieq_ss(_value, a._value) == 1;
     }
 
-    bool operator!=(Scalar const& a) const {
+    bool VECTORCALL operator!=(Scalar const& a) const {
         return _mm_comineq_ss(_value, a._value) == 1;
     }
 
-    bool operator<(Scalar const& a) const {
+    bool VECTORCALL operator<(Scalar const& a) const {
         return _mm_comilt_ss(_value, a._value) == 1;
     }
 
-    bool operator>(Scalar const& a) const {
+    bool VECTORCALL operator>(Scalar const& a) const {
         return _mm_comigt_ss(_value, a._value) == 1;
     }
 
-    bool operator<=(Scalar const& a) const {
+    bool VECTORCALL operator<=(Scalar const& a) const {
         return _mm_comile_ss(_value, a._value) == 1;
     }
 
-    bool operator>=(Scalar const& a) const {
+    bool VECTORCALL operator>=(Scalar const& a) const {
         return _mm_comige_ss(_value, a._value) == 1;
     }
 
-    friend bool operator<(float a, Scalar const& b) {
+    friend bool VECTORCALL operator<(float a, Scalar const& b) {
         return _mm_comilt_ss(_mm_set_ss(a), b._value) == 1;
     }
 
-    friend bool operator>(float a, Scalar const& b) {
+    friend bool VECTORCALL operator>(float a, Scalar const& b) {
         return _mm_comigt_ss(_mm_set_ss(a), b._value) == 1;
     }
 
-    friend bool operator<=(float a, Scalar const& b) {
+    friend bool VECTORCALL operator<=(float a, Scalar const& b) {
         return _mm_comile_ss(_mm_set_ss(a), b._value) == 1;
     }
 
-    friend bool operator>=(float a, Scalar const& b) {
+    friend bool VECTORCALL operator>=(float a, Scalar const& b) {
         return _mm_comige_ss(_mm_set_ss(a), b._value) == 1;
     }
 
-    Scalar operator-() const {
+    Scalar VECTORCALL operator-() const {
         return _mm_sub_ps(_mm_setzero_ps(), _value);
     }
 
-    Scalar operator+(Scalar const& a) const {
+    Scalar VECTORCALL operator+(Scalar const& a) const {
         return _mm_add_ps(_value, a._value);
     }
 
-    Scalar operator-(Scalar const& a) const {
+    Scalar VECTORCALL operator-(Scalar const& a) const {
         return _mm_sub_ps(_value, a._value);
     }
 
-    Scalar operator*(Scalar const& a) const {
+    Scalar VECTORCALL operator*(Scalar const& a) const {
         return _mm_mul_ps(_value, a._value);
     }
 
-    Scalar operator/(Scalar const& a) const {
+    Scalar VECTORCALL operator/(Scalar const& a) const {
         return _mm_div_ps(_value, a._value);
     }
 
-    friend Scalar operator+(float a, Scalar const& b) {
+    friend Scalar VECTORCALL operator+(float a, Scalar const& b) {
         return _mm_add_ps(_mm_set_ps1(a), b._value);
     }
 
-    friend Scalar operator-(float a, Scalar const& b) {
+    friend Scalar VECTORCALL operator-(float a, Scalar const& b) {
         return _mm_sub_ps(_mm_set_ps1(a), b._value);
     }
 
-    friend Scalar operator*(float a, Scalar const& b) {
+    friend Scalar VECTORCALL operator*(float a, Scalar const& b) {
         return _mm_mul_ps(_mm_set_ps1(a), b._value);
     }
 
-    friend Scalar operator/(float a, Scalar const& b) {
+    friend Scalar VECTORCALL operator/(float a, Scalar const& b) {
         return _mm_div_ps(_mm_set_ps1(a), b._value);
     }
 
-    friend Scalar abs(Scalar const& a) {
+    friend Scalar VECTORCALL abs(Scalar const& a) {
         return _mm_andnot_ps(_mm_set_ps1(-0.f), a._value);
     }
 
-    friend Scalar sqrt(Scalar const& a) {
+    friend Scalar VECTORCALL sqrt(Scalar const& a) {
         return _mm_sqrt_ps(a._value);
     }
 
-    friend Scalar exp(Scalar const& a) {
+    friend Scalar VECTORCALL exp(Scalar const& a) {
         return std::exp(_mm_cvtss_f32(a._value));
     }
 
-    friend Scalar pow(Scalar const& a, Scalar const& b) {
+    friend Scalar VECTORCALL pow(Scalar const& a, Scalar const& b) {
         return std::pow(_mm_cvtss_f32(a._value), _mm_cvtss_f32(b._value));
     }
 
@@ -169,31 +175,31 @@ private:
  */
 class VectorScalar {
 public:
-    bool operator==(Scalar const& s) const {
+    bool VECTORCALL operator==(Scalar const& s) const {
         return s == *this;
     }
 
-    bool operator!=(Scalar const& s) const {
+    bool VECTORCALL operator!=(Scalar const& s) const {
         return s != *this;
     }
 
-    bool operator<(Scalar const& s) const {
+    bool VECTORCALL operator<(Scalar const& s) const {
         return s > *this;
     }
 
-    bool operator>(Scalar const& s) const {
+    bool VECTORCALL operator>(Scalar const& s) const {
         return s < *this;
     }
 
-    bool operator<=(Scalar const& s) const {
+    bool VECTORCALL operator<=(Scalar const& s) const {
         return s >= *this;
     }
 
-    bool operator>=(Scalar const& s) const {
+    bool VECTORCALL operator>=(Scalar const& s) const {
         return s <= *this;
     }
 
-    operator Scalar() const {
+    VECTORCALL operator Scalar() const {
         switch (_index) {
             case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
             case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
@@ -203,7 +209,7 @@ public:
         }
     }
 
-    void operator=(Scalar const& a) {
+    void VECTORCALL operator=(Scalar const& a) {
         switch (_index) {
             case 0: return Delegate<0>::op(_value, a._value);
             case 1: return Delegate<1>::op(_value, a._value);
@@ -223,7 +229,7 @@ private:
     template<int> struct Delegate {};
 
     template<> struct Delegate<0> {
-        static void op(__m128& v, __m128 const& s) {
+        static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       y       s
@@ -232,7 +238,7 @@ private:
     };
 
     template<> struct Delegate<1> {
-        static void op(__m128& v, __m128 const& s) {
+        static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       s       x
@@ -241,7 +247,7 @@ private:
     };
 
     template<> struct Delegate<2> {
-        static void op(__m128& v, __m128 const& s) {
+        static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  w       s       y       x
@@ -250,7 +256,7 @@ private:
     };
 
     template<> struct Delegate<3> {
-        static void op(__m128& v, __m128 const& s) {
+        static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  s       z       y       x
@@ -272,11 +278,11 @@ public:
     Vector(float X, float Y, float Z, float W)
         : _value(_mm_set_ps(W, Z, Y, X)) {}
 
-    VectorScalar operator[](size_t index) {
+    VectorScalar VECTORCALL operator[](size_t index) {
         return VectorScalar(_value, index);
     }
 
-    Scalar operator[](size_t index) const {
+    Scalar VECTORCALL operator[](size_t index) const {
         switch (index) {
             case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
             case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
@@ -286,66 +292,66 @@ public:
         }
     }
 
-    bool operator==(Vector const& a) const {
+    bool VECTORCALL operator==(Vector const& a) const {
         return _mm_movemask_ps(_mm_cmpeq_ps(_value, a._value)) == 0xf;
     }
 
-    bool operator!=(Vector const& a) const {
+    bool VECTORCALL operator!=(Vector const& a) const {
         return _mm_movemask_ps(_mm_cmpneq_ps(_value, a._value)) != 0x0;
     }
 
-    Vector operator+(Vector const& a) const {
+    Vector VECTORCALL operator+(Vector const& a) const {
         return _mm_add_ps(_value, a._value);
     }
 
-    Vector operator-(Vector const& a) const {
+    Vector VECTORCALL operator-(Vector const& a) const {
         return _mm_sub_ps(_value, a._value);
     }
 
-    Vector operator*(Scalar const& s) const {
+    Vector VECTORCALL operator*(Scalar const& s) const {
         return _mm_mul_ps(_value, s._value);
     }
 
-    friend Vector operator*(Scalar const& s, Vector const& a) {
+    friend Vector VECTORCALL operator*(Scalar const& s, Vector const& a) {
         return a * s;
     }
 
-    Vector operator/(Scalar const& s) const {
+    Vector VECTORCALL operator/(Scalar const& s) const {
         return _mm_div_ps(_value, s._value);
     }
 
-    Vector operator-() const {
+    Vector VECTORCALL operator-() const {
         return _mm_sub_ps(_mm_setzero_ps(), _value);
     }
 
-    Scalar Length() const {
+    Scalar VECTORCALL Length() const {
         return _mm_sqrt_ps(_vec_dp_ps(_value, _value));
     }
 
-    Scalar LengthFast() const {
+    Scalar VECTORCALL LengthFast() const {
         auto lsqr = _vec_dp_ps(_value, _value);
         return _mm_mul_ps(lsqr, _mm_rsqrt_ps(lsqr));
     }
 
-    Scalar LengthSqr() const {
+    Scalar VECTORCALL LengthSqr() const {
         return _vec_dp_ps(_value, _value);
     }
 
-    Vector Normalize() const {
+    Vector VECTORCALL Normalize() const {
         return _mm_div_ps(_value, _mm_sqrt_ps(_vec_dp_ps(_value, _value)));
     }
 
-    Vector NormalizeFast() const {
+    Vector VECTORCALL NormalizeFast() const {
         return _mm_mul_ps(_value, _mm_rsqrt_ps(_vec_dp_ps(_value, _value)));
     }
 
     //! Dot product in R4.
-    Scalar operator*(Vector const& a) const {
+    Scalar VECTORCALL operator*(Vector const& a) const {
         return _vec_dp_ps(_value, a._value);
     }
 
     //! Cross product in R3.
-    Vector operator%(Vector const& a) const {
+    Vector VECTORCALL operator%(Vector const& a) const {
         //  y3      y1      y0      y2
         auto shuf1 = _mm_shuffle_ps(_value, _value, SHUFPS(3, 1, 0, 2));
         //  y3      y0      y2      y1
@@ -365,20 +371,20 @@ public:
     }
 
     //! Return the projection of `a` onto this vector.
-    Vector Project(Vector const& a) const {
+    Vector VECTORCALL Project(Vector const& a) const {
         auto lsqr = _vec_dp_ps(_value, _value);
         auto dota = _vec_dp_ps(_value, a._value);
         return _mm_mul_ps(_value, _mm_div_ps(dota, lsqr));
     }
 
     //! Return the rejection of `a` onto this vector.
-    Vector Reject(Vector const& a) const {
+    Vector VECTORCALL Reject(Vector const& a) const {
         auto proj = Project(a)._value;
         return _mm_sub_ps(a._value, proj);
     }
 
     //! Return the reflection of `a` onto this vector.
-    Vector Reflect(Vector const& a) const {
+    Vector VECTORCALL Reflect(Vector const& a) const {
         auto proj = Project(a)._value;
 #if _HAS_FMA
         auto scale = _mm_set_ps1(-2.0f);
@@ -390,7 +396,7 @@ public:
     }
 
     //! Return the component-wise product with `a`.
-    Vector Scale(Vector const& a) const {
+    Vector VECTORCALL Scale(Vector const& a) const {
         return _mm_mul_ps(_value, a._value);
     }
 
@@ -405,7 +411,7 @@ private:
 
     //! Dot product of `a` and `b`. Returns the scalar value broadcasted to each
     //! register element. Multiple implementations based on platform features.
-    static __m128 _vec_dp_ps(__m128 a, __m128 b) {
+    static __m128 VECTORCALL _vec_dp_ps(__m128 a, __m128 b) {
 #if _HAS_SSE4_1
         return _mm_dp_ps(a, b, 0xff);
 #elif _HAS_SSE3
@@ -450,41 +456,41 @@ public:
         , z(m13, m23, m33, m43)
         , w(m14, m24, m34, m44) {}
 
-    Vector& operator[](size_t index) {
+    Vector& VECTORCALL operator[](size_t index) {
         return (&x)[index];
     }
 
-    Vector const& operator[](size_t index) const {
+    Vector const& VECTORCALL operator[](size_t index) const {
         return (&x)[index];
     }
 
-    bool operator==(Matrix const& a) const {
+    bool VECTORCALL operator==(Matrix const& a) const {
         return x == a.x && y == a.y && z == a.z && w == a.w;
     }
 
-    bool operator!=(Matrix const& a) const {
+    bool VECTORCALL operator!=(Matrix const& a) const {
         return x != a.x || y != a.y || z != a.z || w != a.w;
     }
 
-    Matrix operator*(Scalar const& s) const {
+    Matrix VECTORCALL operator*(Scalar const& s) const {
         return Matrix(_mm_mul_ps(x._value, s._value),
                       _mm_mul_ps(y._value, s._value),
                       _mm_mul_ps(z._value, s._value),
                       _mm_mul_ps(w._value, s._value));
     }
 
-    Matrix operator/(Scalar const& s) const {
+    Matrix VECTORCALL operator/(Scalar const& s) const {
         return Matrix(_mm_div_ps(x._value, s._value),
                       _mm_div_ps(y._value, s._value),
                       _mm_div_ps(z._value, s._value),
                       _mm_div_ps(w._value, s._value));
     }
 
-    friend Matrix operator*(Scalar const& s, Matrix const& m) {
+    friend Matrix VECTORCALL operator*(Scalar const& s, Matrix const& m) {
         return m * s;
     }
 
-    Vector operator*(Vector const& v) const {
+    Vector VECTORCALL operator*(Vector const& v) const {
         auto rx = _mm_shuffle_ps(v._value, v._value, SHUFPS(0, 0, 0, 0));
         auto ry = _mm_shuffle_ps(v._value, v._value, SHUFPS(1, 1, 1, 1));
         auto rz = _mm_shuffle_ps(v._value, v._value, SHUFPS(2, 2, 2, 2));
@@ -500,7 +506,7 @@ public:
         return _mm_add_ps(r5, r6);
     }
 
-    Matrix operator*(Matrix const& a) const {
+    Matrix VECTORCALL operator*(Matrix const& a) const {
         return Matrix((*this) * a.x,
                       (*this) * a.y,
                       (*this) * a.z,
