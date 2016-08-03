@@ -1,6 +1,6 @@
 #include "Trace.h"
 
-#include "math/Intrinsic.h"
+#include "vector/Intrinsic.h"
 
 template<typename M, typename V, typename S, size_t Size>
 void test_models() {

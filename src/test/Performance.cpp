@@ -1,9 +1,9 @@
 #include "Performance.h"
 
-#include "math/Default.h"
-#include "math/Intrinsic.h"
+#include "vector/Default.h"
+#include "vector/Intrinsic.h"
 
-#include "math/Intersect.h"
+#include "vector/Intersect.h"
 
 #include "trace/Trace.h"
 

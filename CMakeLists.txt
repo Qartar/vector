@@ -8,19 +8,19 @@ include(Features)
 SetPlatformFeatures()
 
 ########################################
-# math
+# vector
 
-add_library(math STATIC
-    src/math/Default.h
-    src/math/Intrinsic.h
-    src/math/Intersect.h
+add_library(vector STATIC
+    src/vector/Default.h
+    src/vector/Intrinsic.h
+    src/vector/Intersect.h
 
-    src/math/Math.cpp
+    src/vector/Vector.cpp
 
     src/platform/Features.h
 )
 
-target_include_directories(math PUBLIC src src/platform)
+target_include_directories(vector PUBLIC src src/platform)
 
 ########################################
 # trace
@@ -35,16 +35,16 @@ add_library(trace STATIC
     src/trace/Color.h
 )
 
-target_link_libraries(trace math)
+target_link_libraries(trace vector)
 
 ########################################
-# trace_app
+# trace_test
 
-add_executable(trace_app
+add_executable(trace_test
     src/trace/Trace.cpp
 )
 
-target_link_libraries(trace_app trace)
+target_link_libraries(trace_test trace)
 
 ########################################
 # light_app
@@ -56,9 +56,9 @@ add_executable(light_app
 target_link_libraries(light_app trace)
 
 ########################################
-# vector
+# vector_test
 
-add_executable(vector
+add_executable(vector_test
     src/test/main.cpp
     src/test/Conformance.cpp
     src/test/Conformance.h
@@ -66,4 +66,4 @@ add_executable(vector
     src/test/Performance.h
 )
 
-target_link_libraries(vector trace math)
+target_link_libraries(vector_test trace vector)

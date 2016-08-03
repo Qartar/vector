@@ -6,7 +6,7 @@
 #include "Color.h"
 #include "Light.h"
 
-#include "math/Intersect.h"
+#include "vector/Intersect.h"
 
 template<typename M, typename V, typename S>
 struct Object {

@@ -1,7 +1,7 @@
 #include "Conformance.h"
 
-#include "math/Default.h"
-#include "math/Intrinsic.h"
+#include "vector/Default.h"
+#include "vector/Intrinsic.h"
 
 #include <cstdio>
 #include <cmath>
