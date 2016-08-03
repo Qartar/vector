@@ -4,6 +4,8 @@ function(SetPlatformFeatures)
     set(SRC_DIR "${PROJECT_SOURCE_DIR}/src/platform")
     set(TMP_DIR "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp")
 
+    message(STATUS "Detecting platform architecture features")
+
     file(COPY ${SRC_DIR}/Features.cpp DESTINATION ${TMP_DIR})
 
     try_run(
@@ -22,8 +24,24 @@ function(SetPlatformFeatures)
 
     if(${COMPILE_RESULT})
         add_definitions("-D_F_BITS=${RUN_RESULT}")
-        message(STATUS "Platform features detected: ${RUN_OUTPUT_RESULT}")
+        message(STATUS "Detecting platform architecture features - ${RUN_OUTPUT_RESULT}")
+
+        # Enable enhanced instruction set if available
+        if(RUN_OUTPUT_RESULT MATCHES "AVX2")
+            set(ARCH "AVX2")
+        elseif(RUN_OUTPUT_RESULT MATCHES "AVX")
+            set(ARCH "AVX")
+        elseif(RUN_OUTPUT_RESULT MATCHES "SSE2")
+            set(ARCH "SSE2")
+        elseif(RUN_OUTPUT_RESULT MATCHES "SSE")
+            set(ARCH "SSE")
+        endif()
+
+        if (DEFINED ARCH AND MSVC)
+            add_definitions("/arch:${ARCH}")
+            message(STATUS "Using enhanced instruction set - ${ARCH}")
+        endif()
     else()
-        message(WARNING "Platform feature detection failed!")
+        message(STATUS "Detecting platform architecture features - failed!")
     endif()
 endfunction()
