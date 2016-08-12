@@ -3,6 +3,8 @@
 #include "vector/Default.h"
 #include "vector/Intrinsic.h"
 
+#include "Platform.h"
+
 #include <cstdio>
 #include <cmath>
 

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Color.h"
+#include "Platform.h"
 
 bool WriteBitmapBGR(char const* filename, size_t width, size_t height, std::vector<uint8_t> const& pixels);
 

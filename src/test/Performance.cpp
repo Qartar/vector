@@ -7,6 +7,8 @@
 
 #include "trace/Trace.h"
 
+#include "Platform.h"
+
 template<typename M, typename V, typename S>
 struct vectorElemReadT {
     static constexpr const char* name = "vectorElemRead";
