@@ -64,6 +64,7 @@ target_link_libraries(light_app trace)
 
 add_executable(vector_test
     src/test/main.cpp
+    src/test/Timer.h
     src/test/Conformance.cpp
     src/test/Conformance.h
     src/test/Performance.cpp
