@@ -1,5 +1,7 @@
 #include "Image.h"
 
+#if defined(_WIN32)
+
 #include <Windows.h>
 
 bool WriteBitmapBGR(char const* filename, size_t width, size_t height, std::vector<uint8_t> const& pixels)
@@ -58,3 +60,12 @@ bool WriteBitmapBGR(char const* filename, size_t width, size_t height, std::vect
     CloseHandle(hfile);
     return true;
 }
+
+#else // defined(_WIN32)
+
+bool WriteBitmapBGR(char const* filename, size_t width, size_t height, std::vector<uint8_t> const& pixels)
+{
+    return false;
+}
+
+#endif // !defined(_WIN32)
