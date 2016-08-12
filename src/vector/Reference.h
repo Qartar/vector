@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cassert>
+#include <cstdint>
 #include <cmath>
 
-namespace default {
+namespace reference {
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -13,6 +14,7 @@ using Scalar = float;
 
 using std::abs;
 using std::sqrt;
+using std::size_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -199,4 +201,4 @@ protected:
     Vector x, y, z, w;
 };
 
-} // namespace default
+} // namespace reference

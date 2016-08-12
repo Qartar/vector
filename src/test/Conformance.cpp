@@ -1,6 +1,6 @@
 #include "Conformance.h"
 
-#include "vector/Default.h"
+#include "vector/Reference.h"
 #include "vector/Intrinsic.h"
 
 #include "Platform.h"
@@ -316,12 +316,12 @@ bool testFunc() {
         "failed", "ok",
     };
 
-    bool b0 = Func<default::Matrix, default::Vector, default::Scalar>()();
+    bool b0 = Func<reference::Matrix, reference::Vector, reference::Scalar>()();
     bool b1 = Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()();
 
     // Print results
     printf_s("  %-24s %-15s %-15s\n",
-             Func<default::Matrix, default::Vector, default::Scalar>::name,
+             Func<reference::Matrix, reference::Vector, reference::Scalar>::name,
              result_strings[b0],
              result_strings[b1]);
 

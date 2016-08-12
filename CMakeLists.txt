@@ -15,7 +15,7 @@ endif()
 # vector
 
 add_library(vector STATIC
-    src/vector/Default.h
+    src/vector/Reference.h
     src/vector/Intrinsic.h
     src/vector/Intersect.h
 

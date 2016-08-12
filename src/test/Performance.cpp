@@ -1,6 +1,6 @@
 #include "Performance.h"
 
-#include "vector/Default.h"
+#include "vector/Reference.h"
 #include "vector/Intrinsic.h"
 
 #include "vector/Intersect.h"
@@ -684,7 +684,7 @@ void testPerformance(std::vector<float> const& data) {
     double loop_timing[2][kLoopCount];
     double timing[2];
 
-    Func<default::Matrix, default::Vector, default::Scalar> fn0(data);
+    Func<reference::Matrix, reference::Vector, reference::Scalar> fn0(data);
     Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar> fn1(data);
 
     // Warm-up passes
@@ -709,7 +709,7 @@ void testPerformance(std::vector<float> const& data) {
 
     // Print results
     printf_s("  %-24s %12.4f \xc2\xb5s %12.4f \xc2\xb5s %7.2f%%\n",
-             Func<default::Matrix, default::Vector, default::Scalar>::name,
+             Func<reference::Matrix, reference::Vector, reference::Scalar>::name,
              timing[0], timing[1], 1.0e2 * timing[0] / timing[1]);
 }
 
