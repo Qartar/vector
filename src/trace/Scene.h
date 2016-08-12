@@ -27,11 +27,11 @@ struct TraceSphere : Sphere<V, S> {
 template<typename M, typename V, typename S, typename L = L_BlinnPhong>
 class Scene {
 public:
-    using Color = Color<M, V, S>;
-    using Material = Material<M, V, S>;
-    using Light = Light<M, V, S>;
-    using TraceHit = TraceHit<M, V, S>;
-    using TraceSphere = TraceSphere<M, V, S>;
+    using Color = ::Color<M, V, S>;
+    using Material = ::Material<M, V, S>;
+    using Light = ::Light<M, V, S>;
+    using TraceHit = ::TraceHit<M, V, S>;
+    using TraceSphere = ::TraceSphere<M, V, S>;
 
 public:
     Scene() {}

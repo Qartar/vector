@@ -677,7 +677,7 @@ double testPerformanceSingle(Func& fn) {
     return t.Microseconds();
 }
 
-template<template<typename, typename, typename> typename Func, size_t kLoopCount = 16>
+template<template<typename, typename, typename> class Func, size_t kLoopCount = 16>
 void testPerformance(std::vector<float> const& data) {
     double loop_timing[2][kLoopCount];
     double timing[2];

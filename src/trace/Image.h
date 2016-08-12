@@ -33,7 +33,7 @@ inline uint8_t EncodeGamma(float c)
 template<typename M, typename V, typename S>
 class Image {
 public:
-    using Color = Color<M, V, S>;
+    using Color = ::Color<M, V, S>;
 
     Image(size_t width, size_t height)
         : _width(width)

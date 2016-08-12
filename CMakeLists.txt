@@ -22,6 +22,7 @@ add_library(vector STATIC
     src/vector/Vector.cpp
 
     src/platform/Features.h
+    src/platform/Platform.h
 )
 
 target_include_directories(vector PUBLIC src src/platform)

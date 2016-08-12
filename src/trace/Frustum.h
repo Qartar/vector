@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 template<typename M, typename V, typename S>
 class Frustum {
 public:

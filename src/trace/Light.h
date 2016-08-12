@@ -271,9 +271,9 @@ class Ks_CookTorrance {
 public:
     template<typename M, typename V, typename S>
     static S Ks(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
-        return D::D<M, V, S>(mtr, n, h)
-             * F::F<M, V, S>(mtr, n, v, h)
-             * G::G<M, V, S>(mtr, n, l, v, h)
+        return D::template D<M, V, S>(mtr, n, h)
+             * F::template F<M, V, S>(mtr, n, v, h)
+             * G::template G<M, V, S>(mtr, n, l, v, h)
              / (4.f * (n * l) * (n * v));
     }
 };
@@ -289,12 +289,12 @@ class L_Separable {
 public:
     template<typename M, typename V, typename S>
     static S Kd(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v,  V const& h) {
-        return Diffuse::Kd<M, V, S>(mtr, n, l, v, h);
+        return Diffuse::template Kd<M, V, S>(mtr, n, l, v, h);
     }
 
     template<typename M, typename V, typename S>
     static S Ks(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v,  V const& h) {
-        return Specular::Ks<M, V, S>(mtr, n, l, v, h);
+        return Specular::template Ks<M, V, S>(mtr, n, l, v, h);
     }
 };
 

@@ -7,11 +7,14 @@ public:
     Color(float r, float g, float b, float a)
         : _value(r, g, b, a) {}
 
-    auto operator[](size_t index) {
+    using Elem = decltype((*((V*)0))[0u]);
+    using ConstElem = decltype((*((V const*)0))[0u]);
+
+    Elem operator[](size_t index) {
         return _value[index];
     }
 
-    auto operator[](size_t index) const {
+    ConstElem operator[](size_t index) const {
         return _value[index];
     }
 

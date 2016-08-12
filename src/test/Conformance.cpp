@@ -308,7 +308,7 @@ struct testMatrixMatrixProductT {
     }
 };
 
-template<template<typename, typename, typename> typename Func>
+template<template<typename, typename, typename> class Func>
 bool testFunc() {
     constexpr char const* result_strings[] = {
         "failed", "ok",

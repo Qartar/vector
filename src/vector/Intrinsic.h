@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Features.h"
+#include "Platform.h"
 
 #include <cassert>
 
@@ -35,12 +36,6 @@ class Matrix;
 
 #if !_HAS_SSE
 #   error Intrinsics implementation requires at least SSE instruction set!
-#endif
-
-#if defined(_WIN64)
-#   define VECTORCALL __vectorcall
-#else
-#   define VECTORCALL
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,17 +200,17 @@ public:
             case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
             case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
             case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
-            default: __assume(false);
+            default: UNREACHABLE;
         }
     }
 
     void VECTORCALL operator=(Scalar const& a) {
         switch (_index) {
-            case 0: return Delegate<0>::op(_value, a._value);
-            case 1: return Delegate<1>::op(_value, a._value);
-            case 2: return Delegate<2>::op(_value, a._value);
-            case 3: return Delegate<3>::op(_value, a._value);
-            default: __assume(false);
+            case 0: return AssignX::op(_value, a._value);
+            case 1: return AssignY::op(_value, a._value);
+            case 2: return AssignZ::op(_value, a._value);
+            case 3: return AssignW::op(_value, a._value);
+            default: UNREACHABLE;
         }
     }
 
@@ -226,9 +221,7 @@ private:
         : _value(value)
         , _index(index) {}
 
-    template<int> struct Delegate {};
-
-    template<> struct Delegate<0> {
+    struct AssignX {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
@@ -237,7 +230,7 @@ private:
         }
     };
 
-    template<> struct Delegate<1> {
+    struct AssignY {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
@@ -246,7 +239,7 @@ private:
         }
     };
 
-    template<> struct Delegate<2> {
+    struct AssignZ {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
@@ -255,7 +248,7 @@ private:
         }
     };
 
-    template<> struct Delegate<3> {
+    struct AssignW {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
@@ -288,7 +281,7 @@ public:
             case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
             case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
             case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
-            default: __assume(false);
+            default: UNREACHABLE;
         }
     }
 
