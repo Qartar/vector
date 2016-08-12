@@ -1,12 +1,48 @@
 #include "Conformance.h"
 #include "Performance.h"
 
-#include <immintrin.h>
-
 #include <random>
 
-int main() {
+#if defined(_WIN32)
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include <Windows.h>
+
+void EnableUnicodeOutput()
+{
     SetConsoleOutputCP(CP_UTF8);
+}
+
+void EnablePerformanceProfiling()
+{
+    SetProcessAffinityMask(GetCurrentProcess(), 1);
+    SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+}
+
+#else // defined(_WIN32)
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sched.h>
+
+void EnableUnicodeOutput() {} // no-op
+
+void EnablePerformanceProfiling()
+{
+   cpu_set_t affinity[] = {1};
+   sched_setaffinity(0, sizeof(affinity), affinity);
+   setpriority(0, 0, -20);
+}
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+int main()
+{
+    EnableUnicodeOutput();
 
     printf_s("Generating test data...\n");
     constexpr const size_t kIter = (1 << 24);
@@ -29,8 +65,7 @@ int main() {
     testMatrixProduct();
 
     printf_s("Testing performance...\n");
-    SetProcessAffinityMask(GetCurrentProcess(), 1);
-    SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    EnablePerformanceProfiling();
 
     testVectorElemRead(values);
     testVectorElemWrite(values);
