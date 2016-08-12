@@ -7,6 +7,10 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(Features)
 SetPlatformFeatures()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    add_compile_options(-std=c++11)
+endif()
+
 ########################################
 # vector
 

@@ -39,11 +39,22 @@ const std::set<Feature> features = {
     { _F_AVX2,   "avx2",   7, EBX, (1<< 5) },
 };
 
+#if defined(__GNUC__)
+#define __cpuid(r, v)                                                           \
+    __asm__ ("cpuid\n\t"                                                        \
+            :"=a" ((r)[0]), "=b" ((r)[1]), "=c" ((r)[2]), "=d" ((r)[3])         \
+            :"0" (v) )
+
+#define __cpuidex(r, v, ex)                                                     \
+    __asm__ ("cpuid\n\t"                                                        \
+            :"=a" ((r)[0]), "=b" ((r)[1]), "=c" ((r)[2]), "=d" ((r)[3])         \
+            :"0" (v), "2" (ex) )
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //! Check for the presence of an individual feature.
 bool check_feature(Feature const& f)
 {
-#if defined(_WIN32)
     int registers[4];
 
     // get highest available function index
@@ -62,12 +73,6 @@ bool check_feature(Feature const& f)
     }
 
     return true;
-
-#elif defined(__GNUC__)
-
-    return !!__builtin_cpu_supports(f.feature_name);
-
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +82,7 @@ std::string to_upper(std::string const& str)
     std::transform(out.begin(),
                    out.end(),
                    out.begin(),
-                   std::toupper);
+                   ::toupper);
     return out;
 }
 
