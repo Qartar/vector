@@ -156,11 +156,9 @@ private:
     {
 #if defined(_DEBUG)
         // Verify that each element of the register contains the same value.
-        auto r1 = _mm_mul_ps(value, _mm_set_ps1(4.f));
-        auto r2 = _mm_hadd_ps(value, value);
-        auto r3 = _mm_hadd_ps(r2, r2);
-        auto r4 = _mm_cmpeq_ps(r1, r3);
-        assert(_mm_movemask_ps(r4) == 0xf && "Invalid scalar value!");
+        auto r1 = _mm_shuffle_ps(value, value, SHUFPS(0, 3, 2, 1));
+        auto r2 = _mm_cmpeq_ps(r1, value);
+        assert(_mm_movemask_ps(r2) == 0xf && "Invalid scalar value!");
 #endif
     }
 };
