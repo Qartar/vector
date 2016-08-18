@@ -22,20 +22,69 @@
  * elements' or 'low bits'.
  */
 
-//! Immediate byte argument for _mm_shuffle_ps(src0, src1)
-//!     dst[127:0] = { src1[w], src1[z], src0[y], src0[x] }
-#define SHUFPS(w, z, y, x)  ((w << 6) | (z << 4) | (y << 2) | (x << 0))
-
-//! Immediate byte argument for _mm_blend_ps(src0, src1)
-//!     dst[127:0] = {
-//!         w ? src1[w] : src0[w],
-//!         z ? src1[z] : src0[z],
-//!         y ? src1[y] : src0[y],
-//!         x ? src1[x] : src0[x],
-//!     }
-#define BLENDPS(w, z, y, x)  (((!!w) << 3) | ((!!z) << 2) | ((!!y) << 1) | ((!!x) << 0))
-
 namespace intrinsic {
+
+////////////////////////////////////////////////////////////////////////////////
+//! Select elements of `src0` and `src1` based on the template arguments.
+//!     dst[127:0] = { src1[w], src1[z], src0[y], src0[x] }
+template<int W, int Z, int Y, int X>
+inline __m128 VECTORCALL _v_shuffle_ps(__m128 src0, __m128 src1)
+{
+    static_assert(0 <= W && W < 4, "Element index out of range!");
+    static_assert(0 <= Z && Z < 4, "Element index out of range!");
+    static_assert(0 <= Y && Y < 4, "Element index out of range!");
+    static_assert(0 <= X && X < 4, "Element index out of range!");
+
+    return _mm_shuffle_ps(src0, src1, ((W << 6) | (Z << 4) | (Y << 2) | (X << 0)));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Select elements of `src0` and `src1` based on the template arguments.
+//!     dst[127:0] = {
+//!         w ? src1[127:96] : src0[127:96],
+//!         z ? src1[ 95:64] : src0[ 95:64],
+//!         y ? src1[ 63:32] : src0[ 63:32],
+//!         x ? src1[ 31: 0] : src0[ 31: 0],
+//!     }
+template<bool W, bool Z, bool Y, bool X>
+inline __m128 VECTORCALL _v_blend_ps(__m128 src0, __m128 src1)
+{
+#if _HAS_SSE4_1
+    return _mm_blend_ps(src0, src1, ((W << 3) | (Z << 2) | (Y << 1) | (X << 0)));
+#else
+    static_assert(/*false*/X & ~X, "_mm_blend_ps is not available on this architecture!");
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Dot product of `src0` and `src1`. Returns the scalar value broadcasted to
+//! each register element. Multiple implementations based on platform features.
+inline __m128 VECTORCALL _v_dp_ps(__m128 src0, __m128 src1)
+{
+#if _HAS_SSE4_1
+    return _mm_dp_ps(src0, src1, 0xff);
+#elif _HAS_SSE3
+    //  w       z       y       x
+    auto r1 = _mm_mul_ps(src0, src1);
+    //  z+w     x+y     z+w     x+y
+    auto r2 = _mm_hadd_ps(r1, r1);
+
+    return _mm_hadd_ps(r2, r2);
+#else
+    //  w       z       y       x
+    auto r1 = _mm_mul_ps(src0, src1);
+    //  z       y       x       w
+    auto r2 = _v_shuffle_ps<2, 1, 0, 3>(r1, r1);
+    //  z+w     y+z     x+y     w+x
+    auto r3 = _mm_add_ps(r1, r2);
+    //  x+y     w+x     z+w     y+z
+    auto r4 = _v_shuffle_ps<1, 0, 3, 2>(r3, r3);
+
+    return _mm_add_ps(r3, r4);
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Forward declarations
 class Scalar;
@@ -165,7 +214,7 @@ private:
     {
 #if defined(_DEBUG)
         // Verify that each element of the register contains the same value.
-        auto r1 = _mm_shuffle_ps(value, value, SHUFPS(0, 3, 2, 1));
+        auto r1 = _v_shuffle_ps<0, 3, 2, 1>(value, value);
         auto r2 = _mm_cmpeq_ps(r1, value);
         assert(_mm_movemask_ps(r2) == 0xf && "Invalid scalar value!");
 #endif
@@ -203,10 +252,10 @@ public:
 
     VECTORCALL operator Scalar() const {
         switch (_index) {
-            case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
-            case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
-            case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
-            case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
+            case 0: return _v_shuffle_ps<0, 0, 0, 0>(_value, _value);
+            case 1: return _v_shuffle_ps<1, 1, 1, 1>(_value, _value);
+            case 2: return _v_shuffle_ps<2, 2, 2, 2>(_value, _value);
+            case 3: return _v_shuffle_ps<3, 3, 3, 3>(_value, _value);
             default: UNREACHABLE;
         }
     }
@@ -231,12 +280,12 @@ private:
     struct AssignX {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
 #if _HAS_SSE4_1
-            v = _mm_blend_ps(v, s, BLENDPS(0,0,0,1));
+            v = _v_blend_ps<0, 0, 0, 1>(v, s);
 #else
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       y       s
-            v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 3, 0));
+            v = _v_shuffle_ps<3, 2, 3, 0>(r1, v);
 #endif
         }
     };
@@ -244,12 +293,12 @@ private:
     struct AssignY {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
 #if _HAS_SSE4_1
-            v = _mm_blend_ps(v, s, BLENDPS(0,0,1,0));
+            v = _v_blend_ps<0, 0, 1, 0>(v, s);
 #else
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       s       x
-            v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 1, 2));
+            v = _v_shuffle_ps<3, 2, 1, 2>(r1, v);
 #endif
         }
     };
@@ -257,12 +306,12 @@ private:
     struct AssignZ {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
 #if _HAS_SSE4_1
-            v = _mm_blend_ps(v, s, BLENDPS(0,1,0,0));
+            v = _v_blend_ps<0, 1, 0, 0>(v, s);
 #else
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  w       s       y       x
-            v = _mm_shuffle_ps(v, r1, SHUFPS(1, 2, 1, 0));
+            v = _v_shuffle_ps<1, 2, 1, 0>(v, r1);
 #endif
         }
     };
@@ -270,12 +319,12 @@ private:
     struct AssignW {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
 #if _HAS_SSE4_1
-            v = _mm_blend_ps(v, s, BLENDPS(1,0,0,0));
+            v = _v_blend_ps<1, 0, 0, 0>(v, s);
 #else
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  s       z       y       x
-            v = _mm_shuffle_ps(v, r1, SHUFPS(3, 0, 1, 0));
+            v = _v_shuffle_ps<3, 0, 1, 0>(v, r1);
 #endif
         }
     };
@@ -300,10 +349,10 @@ public:
 
     Scalar VECTORCALL operator[](size_t index) const {
         switch (index) {
-            case 0: return _mm_shuffle_ps(_value, _value, SHUFPS(0, 0, 0, 0));
-            case 1: return _mm_shuffle_ps(_value, _value, SHUFPS(1, 1, 1, 1));
-            case 2: return _mm_shuffle_ps(_value, _value, SHUFPS(2, 2, 2, 2));
-            case 3: return _mm_shuffle_ps(_value, _value, SHUFPS(3, 3, 3, 3));
+            case 0: return _v_shuffle_ps<0, 0, 0, 0>(_value, _value);
+            case 1: return _v_shuffle_ps<1, 1, 1, 1>(_value, _value);
+            case 2: return _v_shuffle_ps<2, 2, 2, 2>(_value, _value);
+            case 3: return _v_shuffle_ps<3, 3, 3, 3>(_value, _value);
             default: UNREACHABLE;
         }
     }
@@ -341,37 +390,37 @@ public:
     }
 
     Scalar VECTORCALL Length() const {
-        return _mm_sqrt_ps(_vec_dp_ps(_value, _value));
+        return _mm_sqrt_ps(_v_dp_ps(_value, _value));
     }
 
     Scalar VECTORCALL LengthFast() const {
-        auto lsqr = _vec_dp_ps(_value, _value);
+        auto lsqr = _v_dp_ps(_value, _value);
         return _mm_mul_ps(lsqr, _mm_rsqrt_ps(lsqr));
     }
 
     Scalar VECTORCALL LengthSqr() const {
-        return _vec_dp_ps(_value, _value);
+        return _v_dp_ps(_value, _value);
     }
 
     Vector VECTORCALL Normalize() const {
-        return _mm_div_ps(_value, _mm_sqrt_ps(_vec_dp_ps(_value, _value)));
+        return _mm_div_ps(_value, _mm_sqrt_ps(_v_dp_ps(_value, _value)));
     }
 
     Vector VECTORCALL NormalizeFast() const {
-        return _mm_mul_ps(_value, _mm_rsqrt_ps(_vec_dp_ps(_value, _value)));
+        return _mm_mul_ps(_value, _mm_rsqrt_ps(_v_dp_ps(_value, _value)));
     }
 
     //! Dot product in R4.
     Scalar VECTORCALL operator*(Vector const& a) const {
-        return _vec_dp_ps(_value, a._value);
+        return _v_dp_ps(_value, a._value);
     }
 
     //! Cross product in R3.
     Vector VECTORCALL operator%(Vector const& a) const {
         //  y3      y1      y0      y2
-        auto shuf1 = _mm_shuffle_ps(_value, _value, SHUFPS(3, 1, 0, 2));
+        auto shuf1 = _v_shuffle_ps<3, 1, 0, 2>(_value, _value);
         //  y3      y0      y2      y1
-        auto shuf2 = _mm_shuffle_ps(_value, _value, SHUFPS(3, 0, 2, 1));
+        auto shuf2 = _v_shuffle_ps<3, 0, 2, 1>(_value, _value);
 
         //  --      y1*z2   y0*z1   y2*z0
         auto prod1 = _mm_mul_ps(shuf1, a._value);
@@ -379,17 +428,17 @@ public:
         auto prod2 = _mm_mul_ps(shuf2, a._value);
 
         //  --      y0*z1   y2*z0   y1*z2
-        auto shuf3 = _mm_shuffle_ps(prod1, prod1, SHUFPS(3, 1, 0, 2));
+        auto shuf3 = _v_shuffle_ps<3, 1, 0, 2>(prod1, prod1);
         //  --      y1*z0   y0*z2   y2*z1
-        auto shuf4 = _mm_shuffle_ps(prod2, prod2, SHUFPS(3, 0, 2, 1));
+        auto shuf4 = _v_shuffle_ps<3, 0, 2, 1>(prod2, prod2);
 
         return _mm_sub_ps(shuf3, shuf4);
     }
 
     //! Return the projection of `a` onto this vector.
     Vector VECTORCALL Project(Vector const& a) const {
-        auto lsqr = _vec_dp_ps(_value, _value);
-        auto dota = _vec_dp_ps(_value, a._value);
+        auto lsqr = _v_dp_ps(_value, _value);
+        auto dota = _v_dp_ps(_value, a._value);
         return _mm_mul_ps(_value, _mm_div_ps(dota, lsqr));
     }
 
@@ -424,32 +473,6 @@ private:
 
     Vector(__m128 const& value)
         : _value(value) {}
-
-    //! Dot product of `a` and `b`. Returns the scalar value broadcasted to each
-    //! register element. Multiple implementations based on platform features.
-    static __m128 VECTORCALL _vec_dp_ps(__m128 a, __m128 b) {
-#if _HAS_SSE4_1
-        return _mm_dp_ps(a, b, 0xff);
-#elif _HAS_SSE3
-        //  w       z       y       x
-        auto r1 = _mm_mul_ps(a, b);
-        //  z+w     x+y     z+w     x+y
-        auto r2 = _mm_hadd_ps(r1, r1);
-
-        return _mm_hadd_ps(r2, r2);
-#else
-        //  w       z       y       x
-        auto r1 = _mm_mul_ps(a, b);
-        //  z       y       x       w
-        auto r2 = _mm_shuffle_ps(r1, r1, SHUFPS(2, 1, 0, 3));
-        //  z+w     y+z     x+y     w+x
-        auto r3 = _mm_add_ps(r1, r2);
-        //  x+y     w+x     z+w     y+z
-        auto r4 = _mm_shuffle_ps(r3, r3, SHUFPS(1, 0, 3, 2));
-
-        return _mm_add_ps(r3, r4);
-#endif
-    }
 };
 
 static_assert(alignof(Vector) == alignof(__m128), "Bad alignment!");
@@ -507,10 +530,10 @@ public:
     }
 
     Vector VECTORCALL operator*(Vector const& v) const {
-        auto rx = _mm_shuffle_ps(v._value, v._value, SHUFPS(0, 0, 0, 0));
-        auto ry = _mm_shuffle_ps(v._value, v._value, SHUFPS(1, 1, 1, 1));
-        auto rz = _mm_shuffle_ps(v._value, v._value, SHUFPS(2, 2, 2, 2));
-        auto rw = _mm_shuffle_ps(v._value, v._value, SHUFPS(3, 3, 3, 3));
+        auto rx = _v_shuffle_ps<0, 0, 0, 0>(v._value, v._value);
+        auto ry = _v_shuffle_ps<1, 1, 1, 1>(v._value, v._value);
+        auto rz = _v_shuffle_ps<2, 2, 2, 2>(v._value, v._value);
+        auto rw = _v_shuffle_ps<3, 3, 3, 3>(v._value, v._value);
 
         auto r1 = _mm_mul_ps(x._value, rx);
         auto r2 = _mm_mul_ps(y._value, ry);
