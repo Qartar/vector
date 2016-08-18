@@ -26,6 +26,15 @@
 //!     dst[127:0] = { src1[w], src1[z], src0[y], src0[x] }
 #define SHUFPS(w, z, y, x)  ((w << 6) | (z << 4) | (y << 2) | (x << 0))
 
+//! Immediate byte argument for _mm_blend_ps(src0, src1)
+//!     dst[127:0] = {
+//!         w ? src1[w] : src0[w],
+//!         z ? src1[z] : src0[z],
+//!         y ? src1[y] : src0[y],
+//!         x ? src1[x] : src0[x],
+//!     }
+#define BLENDPS(w, z, y, x)  (((!!w) << 3) | ((!!z) << 2) | ((!!y) << 1) | ((!!x) << 0))
+
 namespace intrinsic {
 
 // Forward declarations
@@ -221,37 +230,53 @@ private:
 
     struct AssignX {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
+#if _HAS_SSE4_1
+            v = _mm_blend_ps(v, s, BLENDPS(0,0,0,1));
+#else
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       y       s
             v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 3, 0));
+#endif
         }
     };
 
     struct AssignY {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
+#if _HAS_SSE4_1
+            v = _mm_blend_ps(v, s, BLENDPS(0,0,1,0));
+#else
             //  y       x       s       s
             auto r1 = _mm_movelh_ps(s, v);
             //  w       z       s       x
             v = _mm_shuffle_ps(r1, v, SHUFPS(3, 2, 1, 2));
+#endif
         }
     };
 
     struct AssignZ {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
+#if _HAS_SSE4_1
+            v = _mm_blend_ps(v, s, BLENDPS(0,1,0,0));
+#else
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  w       s       y       x
             v = _mm_shuffle_ps(v, r1, SHUFPS(1, 2, 1, 0));
+#endif
         }
     };
 
     struct AssignW {
         static void VECTORCALL op(__m128& v, __m128 const& s) {
+#if _HAS_SSE4_1
+            v = _mm_blend_ps(v, s, BLENDPS(1,0,0,0));
+#else
             //  s       s       w       z
             auto r1 = _mm_movehl_ps(s, v);
             //  s       z       y       x
             v = _mm_shuffle_ps(v, r1, SHUFPS(3, 0, 1, 0));
+#endif
         }
     };
 
