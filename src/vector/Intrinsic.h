@@ -406,7 +406,7 @@ public:
         auto scale = _mm_set_ps1(-2.0f);
         return _mm_fmadd_ps(proj, scale, a._value);
 #else
-        auto r1 = _mm_mul_ps(_mm_set_ps1(2.0f, proj));
+        auto r1 = _mm_mul_ps(_mm_set_ps1(2.0f), proj);
         return _mm_sub_ps(a._value, r1);
 #endif
     }
