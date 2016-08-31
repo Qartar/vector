@@ -112,9 +112,9 @@ public:
     Vector Reflect(Vector const& a) const {
         return a - 2.0f * Project(a);
     }
-    
+
     //! Return the component-wise product with `a`.
-    Vector Scale(Vector const& a) const {
+    Vector Hadamard(Vector const& a) const {
         return {x * a.x, y * a.y, z * a.z, w * a.w};
     }
 
@@ -195,6 +195,14 @@ public:
             }
         }
         return m;
+    }
+
+    //! Return the component-wise product with `a`.
+    Matrix Hadamard(Matrix const& a) const {
+        return Matrix(x.Hadamard(a.x),
+                      y.Hadamard(a.y),
+                      z.Hadamard(a.z),
+                      w.Hadamard(a.w));
     }
 
 protected:

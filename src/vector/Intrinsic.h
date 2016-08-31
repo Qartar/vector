@@ -461,7 +461,7 @@ public:
     }
 
     //! Return the component-wise product with `a`.
-    Vector VECTORCALL Scale(Vector const& a) const {
+    Vector VECTORCALL Hadamard(Vector const& a) const {
         return _mm_mul_ps(_value, a._value);
     }
 
@@ -550,6 +550,14 @@ public:
                       (*this) * a.y,
                       (*this) * a.z,
                       (*this) * a.w);
+    }
+
+    //! Return the component-wise product with `a`.
+    Matrix VECTORCALL Hadamard(Matrix const& a) const {
+        return Matrix(_mm_mul_ps(x._value, a.x._value),
+                      _mm_mul_ps(y._value, a.y._value),
+                      _mm_mul_ps(z._value, a.z._value),
+                      _mm_mul_ps(w._value, a.w._value));
     }
 
 protected:

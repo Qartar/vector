@@ -28,7 +28,7 @@ public:
     }
 
     Color operator*(Color const& c) const {
-        return _value.Scale(c._value);
+        return _value.Hadamard(c._value);
     }
 
     Color operator*(S const& s) const {
