@@ -159,6 +159,14 @@ public:
         return x != a.x || y != a.y || z != a.z || w != a.w;
     }
 
+    Matrix operator+(Matrix const& a) const {
+        return Matrix(x + a.x, y + a.y, z + a.z, w + a.w);
+    }
+
+    Matrix operator-(Matrix const& a) const {
+        return Matrix(x - a.x, y - a.y, z - a.z, w - a.w);
+    }
+
     Matrix operator*(Scalar s) const {
         return Matrix(x * s, y * s, z * s, w * s);
     }

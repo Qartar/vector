@@ -511,6 +511,20 @@ public:
         return x != a.x || y != a.y || z != a.z || w != a.w;
     }
 
+    Matrix VECTORCALL operator+(Matrix const& a) const {
+        return Matrix(_mm_add_ps(x._value, a.x._value),
+                      _mm_add_ps(y._value, a.y._value),
+                      _mm_add_ps(z._value, a.z._value),
+                      _mm_add_ps(w._value, a.w._value));
+    }
+
+    Matrix VECTORCALL operator-(Matrix const& a) const {
+        return Matrix(_mm_sub_ps(x._value, a.x._value),
+                      _mm_sub_ps(y._value, a.y._value),
+                      _mm_sub_ps(z._value, a.z._value),
+                      _mm_sub_ps(w._value, a.w._value));
+    }
+
     Matrix VECTORCALL operator*(Scalar const& s) const {
         return Matrix(_mm_mul_ps(x._value, s._value),
                       _mm_mul_ps(y._value, s._value),

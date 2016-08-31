@@ -1,8 +1,8 @@
 # **vector**
 
 This is a test project to evaluate the performance of a basic SIMD vector
-algebra implementation relative to a reference implementation. *It is *not*
-currently implemented to be consumed by other code*.
+algebra implementation relative to a reference implementation. It is *not*
+currently implemented to be consumed by other code.
 
 ## Setup
 
@@ -62,9 +62,9 @@ the following operators are supported:
 
 |              | `Scalar` | `Vector` | `Matrix` |
 |------------- | -------- | -------- | -------- |
-| **`Scalar`** | `+-*/<>` | `*/`     | `*/`     |
+| **`Scalar`** | `+-*/<>` | `*`      | `*`      |
 | **`Vector`** | `*/`     | `+-*%`   |          |
-| **`Matrix`** | `*/`     | `*`      | `*`      |
+| **`Matrix`** | `*/`     | `*`      | `+-*`    |
 
 Where `Vector * Vector` represents the dot product in **R**4 and `Vector %
 Vector` represents the cross product in **R**3. The `%` operator was chosen
