@@ -4,12 +4,29 @@ project(vector)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+########################################
+# Compiler specific options
+
+# Clang/C2
+if(MSVC AND CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+
+# Clang/LLVM
+elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lm -lc++")
+
+# GNU C
+elseif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+endif()
+
+########################################
+# Feature detection
+
 include(Features)
 SetPlatformFeatures()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU)
-    add_compile_options(-std=c++11)
-endif()
 
 ########################################
 # vector

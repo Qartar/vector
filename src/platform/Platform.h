@@ -1,7 +1,7 @@
 #pragma once
 
 ////////////////////////////////////////////////////////////////////////////////
-#if !defined(_WIN32)
+#if !defined(_MSC_VER)
 #include <cstdarg>
 #include <cstdio>
 
@@ -14,20 +14,26 @@ inline void printf_s(char const* fmt, ...)
     va_end(va);
 }
 
-#endif // !defined(_WIN32)
+#endif // !defined(_MSC_VER)
 
 ////////////////////////////////////////////////////////////////////////////////
-#if defined(_WIN64)
+#if defined(_MSC_VER) && defined(_WIN64)
 #   define VECTORCALL __vectorcall
 #else
 #   define VECTORCALL
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-#if defined(_WIN32)
-#define UNREACHABLE __assume(false)
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 #define UNREACHABLE __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define UNREACHABLE __assume(false)
 #else
 #define UNREACHABLE (void )0
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// Workaround for Clang/C2 which defines _DEBUG and NDEBUG at the same time
+#if _DEBUG && NDEBUG
+#   undef NDEBUG
 #endif

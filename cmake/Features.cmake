@@ -8,10 +8,6 @@ function(SetPlatformFeatures)
 
     file(COPY ${SRC_DIR}/Features.cpp DESTINATION ${TMP_DIR})
 
-    if(CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-        set(DEFINITIONS "-std=c++11")
-    endif()
-
     try_run(
         RUN_RESULT
         COMPILE_RESULT
@@ -20,8 +16,8 @@ function(SetPlatformFeatures)
         CMAKE_FLAGS
             -DCMAKE_SKIP_RPATH:BOOL=${CMAKE_SKIP_RPATH}
             -DINCLUDE_DIRECTORIES:STRING=${SRC_DIR}
-        COMPILE_DEFINITIONS
-            ${DEFINITIONS}
+            -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+            -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
         COMPILE_OUTPUT_VARIABLE
             COMPILE_OUTPUT_RESULT
         RUN_OUTPUT_VARIABLE
@@ -49,13 +45,11 @@ function(SetPlatformFeatures)
         if(DEFINED ARCH AND CMAKE_CXX_COMPILER_ID MATCHES MSVC)
             add_compile_options("/arch:${ARCH}")
             message(STATUS "Using enhanced instruction set - ${ARCH}")
-        elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU)
-            # For GCC/Clang each feature needs to be set explicitly.
-            string(REGEX MATCHALL "[^, ]+" ARCH_LIST "${RUN_OUTPUT_RESULT}")
-            foreach(ARCH_VAR ${ARCH_LIST})
-                string(TOLOWER ${ARCH_VAR} ARCH_LOWER)
-                add_compile_options("-m${ARCH_LOWER}")
-            endforeach()
         endif()
+    endif()
+
+    # Use native architecture when compiling with Clang or GCC
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU)
+        add_compile_options("-march=native")
     endif()
 endfunction()

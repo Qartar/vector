@@ -8,7 +8,7 @@
 class Timer {
 public:
     Timer()
-        : _accum(LARGE_INTEGER{ 0 }) {}
+        : _accum(LARGE_INTEGER{{0}}) {}
 
     void Start() {
         QueryPerformanceCounter(&_start);
