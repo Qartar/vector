@@ -7,3 +7,4 @@ bool testLength();
 bool testDotProduct();
 bool testCrossProduct();
 bool testMatrixProduct();
+bool testMatrixTranspose();

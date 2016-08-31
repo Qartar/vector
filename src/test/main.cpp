@@ -65,6 +65,7 @@ int main()
     testDotProduct();
     testCrossProduct();
     testMatrixProduct();
+    testMatrixTranspose();
 
     printf_s("Testing performance...\n");
     EnablePerformanceProfiling();
@@ -87,6 +88,7 @@ int main()
     testMatrixScalar(values);
     testMatrixVector(values);
     testMatrixMatrix(values);
+    testMatrixTranspose(values);
     testHitSphere(values);
     testHitCapsule(values);
     testTraceScene(values);

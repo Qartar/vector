@@ -23,6 +23,7 @@ void testVectorReflect(std::vector<float> const& data);
 void testMatrixScalar(std::vector<float> const& data);
 void testMatrixVector(std::vector<float> const& data);
 void testMatrixMatrix(std::vector<float> const& data);
+void testMatrixTranspose(std::vector<float> const& data);
 void testHitSphere(std::vector<float> const& data);
 void testHitCapsule(std::vector<float> const& data);
 void testTraceScene(std::vector<float> const& data);

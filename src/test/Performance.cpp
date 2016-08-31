@@ -583,6 +583,37 @@ struct matrixMatrixT {
 };
 
 template<typename M, typename V, typename S>
+struct matrixTransposeT {
+    static constexpr const char* name = "matrixTranspose";
+    static constexpr const size_t size = 16;
+
+    matrixTransposeT(std::vector<float> const& data) {
+        _input.resize(data.size() / size);
+        float const* v = data.data();
+        for (size_t ii = 0; ii < _input.size(); ++ii) {
+            _input[ii] = {
+                *v++, *v++, *v++, *v++,
+                *v++, *v++, *v++, *v++,
+                *v++, *v++, *v++, *v++,
+                *v++, *v++, *v++, *v++,
+            };
+        }
+        _output.resize(data.size() / size);
+    }
+
+    void operator()() {
+        M* out = _output.data();
+
+        for (auto const& in : _input) {
+            *out++ = in.Transpose();
+        }
+    }
+
+    std::vector<M> _input;
+    std::vector<M> _output;
+};
+
+template<typename M, typename V, typename S>
 struct hitSphereT {
     static constexpr const char* name = "hitSphere";
     static constexpr const size_t size = 10;
@@ -783,6 +814,10 @@ void testMatrixVector(std::vector<float> const& data) {
 
 void testMatrixMatrix(std::vector<float> const& data) {
     return testPerformance<matrixMatrixT>(data);
+}
+
+void testMatrixTranspose(std::vector<float> const& data) {
+    return testPerformance<matrixTransposeT>(data);
 }
 
 void testHitSphere(std::vector<float> const& data) {

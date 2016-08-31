@@ -566,6 +566,33 @@ public:
                       (*this) * a.w);
     }
 
+    Matrix VECTORCALL Transpose() const {
+        //  m41     m31     m21     m11
+        //  m42     m32     m22     m12
+        //  m43     m33     m23     m13
+        //  m44     m34     m24     m14
+
+        //  m22     m21     m12     m11
+        auto r0 = _mm_unpacklo_ps(x._value, y._value);
+        //  m24     m23     m14     m13
+        auto r2 = _mm_unpacklo_ps(z._value, w._value);
+        //  m42     m41     m32     m31
+        auto r1 = _mm_unpackhi_ps(x._value, y._value);
+        //  m44     m43     m34     m33
+        auto r3 = _mm_unpackhi_ps(z._value, w._value);
+
+        return Matrix(
+            //  m14     m13     m12     m11
+            _mm_movelh_ps(r0, r2),
+            //  m24     m23     m22     m21
+            _mm_movehl_ps(r2, r0),
+            //  m34     m33     m32     m31
+            _mm_movelh_ps(r1, r3),
+            //  m44     m43     m42     m41
+            _mm_movehl_ps(r3, r1)
+        );
+    }
+
     //! Return the component-wise product with `a`.
     Matrix VECTORCALL Hadamard(Matrix const& a) const {
         return Matrix(_mm_mul_ps(x._value, a.x._value),

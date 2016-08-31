@@ -31,6 +31,7 @@ struct testComparisonT {
         return true;
     }
 };
+
 template<typename M, typename V, typename S>
 struct testElementsT {
     static constexpr const char* name = "testElements";
@@ -310,6 +311,48 @@ struct testMatrixMatrixProductT {
     }
 };
 
+template<typename M, typename V, typename S>
+struct testMatrixTransposeT {
+    static constexpr const char* name = "testMatrixTranspose";
+
+    bool operator()() const {
+        M A = {
+            1.f, 2.f, 3.f, 4.f,
+            2.f, 3.f, 4.f, 5.f,
+            3.f, 4.f, 5.f, 6.f,
+            4.f, 5.f, 6.f, 7.f,
+        };
+
+        M At = {
+            1.f, 2.f, 3.f, 4.f,
+            2.f, 3.f, 4.f, 5.f,
+            3.f, 4.f, 5.f, 6.f,
+            4.f, 5.f, 6.f, 7.f,
+        };
+
+        M B = {
+            3.f, 4.f, 2.f, 1.f,
+            4.f, 3.f, 3.f, 2.f,
+            3.f, 2.f, 4.f, 3.f,
+            2.f, 1.f, 3.f, 4.f,
+        };
+
+        if (A.Transpose() != At) {
+            return false;
+        }
+
+        if (A.Transpose().Transpose() != A) {
+            return false;
+        }
+
+        if (A.Transpose() * B.Transpose() != (B * A).Transpose()) {
+            return false;
+        }
+
+        return true;
+    }
+};
+
 template<template<typename, typename, typename> class Func>
 bool testFunc() {
     constexpr char const* result_strings[] = {
@@ -357,4 +400,8 @@ bool testMatrixProduct() {
     bool b2 = testFunc<testMatrixVectorProductT>();
     bool b3 = testFunc<testMatrixMatrixProductT>();
     return b1 && b2 && b3;
+}
+
+bool testMatrixTranspose() {
+    return testFunc<testMatrixTransposeT>();
 }

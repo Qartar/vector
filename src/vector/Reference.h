@@ -205,6 +205,13 @@ public:
         return m;
     }
 
+    Matrix Transpose() const {
+        return Matrix(x.x, x.y, x.z, x.w,
+                      y.x, y.y, y.z, y.w,
+                      z.x, z.y, z.z, z.w,
+                      w.x, w.y, w.z, w.w);
+    }
+
     //! Return the component-wise product with `a`.
     Matrix Hadamard(Matrix const& a) const {
         return Matrix(x.Hadamard(a.x),
