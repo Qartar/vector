@@ -24,7 +24,7 @@ inline void printf_s(char const* fmt, ...)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #define UNREACHABLE __builtin_unreachable()
 #elif defined(_MSC_VER)
 #define UNREACHABLE __assume(false)
