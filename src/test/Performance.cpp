@@ -10,6 +10,13 @@
 
 #include "Platform.h"
 
+#if defined(__GNUC__)
+// GCC complains about initialization with multiple `*v++` which would normally
+// be valid but the order doesn't actually matter here. As long as GCC doesn't
+// completely elide the potentially undefined code there's no problem...
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#endif // defined(__GNUC__)
+
 template<typename M, typename V, typename S>
 struct vectorElemReadT {
     static constexpr const char* name = "vectorElemRead";

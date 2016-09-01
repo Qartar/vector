@@ -21,9 +21,9 @@ struct Capsule {
 
 template<typename V, typename S>
 struct Hit {
-    S t;
     V point;
     V normal;
+    S t;
 };
 
 template<typename V, typename S>

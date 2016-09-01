@@ -47,7 +47,7 @@ struct Light {
 class D_Lambert {
 public:
     template<typename M, typename V, typename S>
-    static S D(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S D(Material<M, V, S> const&, V const&, V const&, V const&, V const&) {
         return 1.f;
     }
 };
@@ -123,7 +123,7 @@ public:
 class F_None {
 public:
     template<typename M, typename V, typename S>
-    static S F(Material<M, V, S> const& mtr, V const& n, V const& v, V const& h) {
+    static S F(Material<M, V, S> const& mtr, V const&, V const&, V const&) {
         return mtr.reflectance;
     }
 };
@@ -132,7 +132,7 @@ public:
 class F_Schlick {
 public:
     template<typename M, typename V, typename S>
-    static S F(Material<M, V, S> const& mtr, V const& n, V const& v, V const& h) {
+    static S F(Material<M, V, S> const& mtr, V const&, V const& v, V const& h) {
         S F0 = mtr.reflectance;
         S k = 1.f - v * h;
         S ksqr = k * k;
@@ -149,7 +149,7 @@ public:
 class G_None {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const&, V const&, V const&, V const&, V const&) {
         return 1.f;
     }
 };
@@ -158,7 +158,7 @@ public:
 class G_Implicit {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const&, V const& n, V const& l, V const& v, V const&) {
         return (n * l) * (n * v);
     }
 };
@@ -167,7 +167,7 @@ public:
 class G_Neumann {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const&, V const& n, V const& l, V const& v, V const&) {
         S NdotL = n * l;
         S NdotV = n * v;
         return NdotL * NdotV / std::max(NdotL, NdotV);
@@ -178,7 +178,7 @@ public:
 class G_CookTorrance {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const&, V const& n, V const& l, V const& v, V const& h) {
         S k = 2.f * (n * h) / (v * h);
         return min3(S(1.f), k * (n * v), k * (n * l));
     }
@@ -194,7 +194,7 @@ protected:
 class G_Kelemen {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const&, V const& n, V const& l, V const& v, V const& h) {
         return (n * l) * (n * v) / ((v * h) * (v * h));
     }
 };
@@ -203,7 +203,7 @@ public:
 class G_GGX {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const& mtr, V const& n, V const&, V const& v, V const&) {
         S msqr = mtr.roughness * mtr.roughness;
         S ndotv = n * v;
         S rad = 1.f - msqr + msqr / (ndotv * ndotv);
@@ -215,7 +215,7 @@ public:
 class G_SmithHeightCorrelated {
 public:
     template<typename M, typename V, typename S>
-    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S G(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const&) {
         S msqr = mtr.roughness * mtr.roughness;
         S NdotV = n * v;
         S NdotL = n * l;
@@ -260,7 +260,7 @@ public:
 class Ks_BlinnPhong {
 public:
     template<typename M, typename V, typename S>
-    static S Ks(Material<M, V, S> const& mtr, V const& n, V const& l, V const& v, V const& h) {
+    static S Ks(Material<M, V, S> const& mtr, V const& n, V const&, V const& v, V const& h) {
         return D_BlinnPhong::D<M, V, S>(mtr, n, h) * F_None::F<M, V, S>(mtr, n, v, h);
     }
 };

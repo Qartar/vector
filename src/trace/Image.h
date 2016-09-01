@@ -11,7 +11,7 @@ bool WriteBitmapBGR(char const* filename, size_t width, size_t height, std::vect
 
 inline uint8_t ClampByte(float c)
 {
-    return std::min<int>(255, int(c * 255.f));
+    return static_cast<uint8_t>(std::min<int>(255, int(c * 255.f)));
 }
 
 inline uint8_t EncodeGamma(float c)

@@ -179,13 +179,13 @@ public:
         return m * s;
     }
 
-    Vector operator*(Vector const& x) const {
+    Vector operator*(Vector const& u) const {
         Vector v;
 
         for (size_t ii = 0; ii < 4; ++ii) {
-            v[ii] = (*this)[0][ii] * x[0];
+            v[ii] = (*this)[0][ii] * u[0];
             for (size_t kk = 1; kk < 4; ++kk) {
-                v[ii] += (*this)[kk][ii] * x[kk];
+                v[ii] += (*this)[kk][ii] * u[kk];
             }
         }
         return v;

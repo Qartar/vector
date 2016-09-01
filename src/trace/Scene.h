@@ -50,7 +50,7 @@ public:
     //! an object in the scene with the ray from `start` to `end`.
     bool TraceColor(V const& start, V const& end, Color& color, int hit_count = 4) const
     {
-        TraceHit hit;
+        TraceHit hit = {};
 
         if (Trace(start, end, hit)) {
             V view = (start - hit.point).Normalize();
@@ -88,7 +88,7 @@ protected:
     //! Calculate the indirect illumination at a point from the given direction.
     Color ShadeIndirect(Material const& material, V const& origin, V const& normal, V const& view, V const& direction, int hit_count) const
     {
-        TraceHit hit;
+        TraceHit hit = {};
 
         if (Trace(origin + normal * kEpsilon, origin + direction * 1e3f, hit)) {
             // Determine the lit color of the object at the intersection point

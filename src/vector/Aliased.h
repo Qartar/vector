@@ -169,12 +169,24 @@ public:
     }
 
 private:
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+// MSVC complains that nameless struct/union is a nonstandard
+// extension even though virtually every compiler supports it.
+#pragma warning(disable: 4201)
+#endif // defined(_MSC_VER)
+
     union {
         __m128 _value;
         struct {
             float x, y, z, w;
         };
     };
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif // defined(_MSC_VER)
 
 private:
     friend Matrix;

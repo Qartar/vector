@@ -34,7 +34,7 @@ void EnableUnicodeOutput() {} // no-op
 
 void EnablePerformanceProfiling()
 {
-   cpu_set_t affinity[] = {1};
+   cpu_set_t affinity[] = {{1}};
    sched_setaffinity(0, sizeof(affinity), affinity);
    setpriority(0, 0, -20);
 }
