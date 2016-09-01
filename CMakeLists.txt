@@ -48,6 +48,7 @@ SetPlatformFeatures()
 add_library(vector STATIC
     src/vector/Reference.h
     src/vector/Intrinsic.h
+    src/vector/Aliased.h
     src/vector/Intersect.h
 
     src/vector/Vector.cpp
@@ -69,6 +70,7 @@ add_library(trace STATIC
     src/trace/Image.h
     src/trace/Scene.h
     src/trace/Color.h
+    src/trace/Light.h
 )
 
 target_link_libraries(trace vector)
@@ -87,6 +89,7 @@ target_link_libraries(trace_test trace)
 
 add_executable(light_app
     src/trace/Light.cpp
+    src/trace/Light.h
 )
 
 target_link_libraries(light_app trace)

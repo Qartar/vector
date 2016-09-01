@@ -2,6 +2,7 @@
 
 #include "vector/Reference.h"
 #include "vector/Intrinsic.h"
+#include "vector/Aliased.h"
 
 #include "Platform.h"
 
@@ -361,14 +362,16 @@ bool testFunc() {
 
     bool b0 = Func<reference::Matrix, reference::Vector, reference::Scalar>()();
     bool b1 = Func<intrinsic::Matrix, intrinsic::Vector, intrinsic::Scalar>()();
+    bool b2 = Func<aliased::Matrix, aliased::Vector, aliased::Scalar>()();
 
     // Print results
-    printf_s("  %-24s %-15s %-15s\n",
+    printf_s("  %-24s %-15s %-15s %-15s\n",
              Func<reference::Matrix, reference::Vector, reference::Scalar>::name,
              result_strings[b0],
-             result_strings[b1]);
+             result_strings[b1],
+             result_strings[b2]);
 
-    return b0 && b1;
+    return b0 && b1 && b2;
 }
 
 bool testComparison() {
